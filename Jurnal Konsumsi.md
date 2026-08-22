@@ -52,6 +52,10 @@ Halaman masuk dapat pita seluloid yang bergeser (dibuat dari `repeating-linear-g
 
 **Temuan terukur:** tombol aksi di daftar cuma **29px** tingginya karena `.tombol.kecil` memakai `min-height: 0`. Itu tombol yang paling sering diketuk dari HP. Dinaikkan ke 44px.
 
+**Putaran kedua — latar halaman aplikasi.** Rico menilai bagian isi masih terlalu polos. Ditambah siluet melayang + pita bergeser di `z-index: -1`, `pointer-events: none`, opasitas 0,04–0,055 (0,035 di HP, pita dimatikan di bawah 700px). Diverifikasi: `elementFromPoint` di area kosong mengembalikan `MAIN`, bukan lapisan hiasan — jadi tidak ada ketukan yang tercuri.
+
+**Regresi kontras yang ditemukan lewat pengukuran:** teks kaki halaman turun ke 2,90:1 saat siluet lewat di belakangnya. Ternyata sudah gagal sejak awal di 3,17:1 — warisan `--ink-faint` dari aplikasi keuangan, padahal salah satu isinya tautan. Dinaikkan ke `--ink-dim`: sekarang 5,2:1 pada kasus terburuk di kedua mode. **Kalau opasitas latar dinaikkan, ukur ulang.**
+
 **Catatan alat, bukan bug aplikasi:** saat panel browser tersembunyi, perhitungan gaya berhenti total — bahkan `element.style.opacity` yang diset langsung tetap terbaca nilai lama. Nilai saat halaman pertama dimuat tetap benar. Jadi jangan percaya `getComputedStyle` setelah mengubah kelas lewat Console kalau panelnya tidak terlihat; muat ulang halamannya.
 
 ## Gerbang sebelum menambah fitur
