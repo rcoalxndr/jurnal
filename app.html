@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="id" class="memuat">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jurnal</title>
+<meta name="description" content="Jurnal konsumsi pribadi: film, serial, buku, dan game.">
+
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Jurnal">
+<meta name="theme-color" content="#EDE7DA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1A1815" media="(prefers-color-scheme: dark)">
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://rcoalxndr.github.io/jurnal/app.html?demo">
+<meta property="og:title" content="Jurnal — demo">
+<meta property="og:description" content="Coba jurnal konsumsi ini dengan data karangan, tanpa perlu akun.">
+<meta property="og:locale" content="id_ID">
+<meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="style.css?v=1">
+<script>
+  try {
+    var t = localStorage.getItem('theme');
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+</script>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar-isi">
+    <span class="wordmark">JURNAL</span>
+    <div class="topbar-aksi">
+      <button type="button" class="ikon-tombol" id="tombolTema" aria-label="Ganti tema">
+        <span id="ikonTema" aria-hidden="true">☾</span>
+      </button>
+      <button type="button" class="tombol kecil" id="tombolKeluar">Keluar</button>
+    </div>
+  </div>
+  <nav class="tabs wrap" role="tablist" aria-label="Tampilan">
+    <button class="tab" role="tab" data-view="sekarang" aria-selected="true">Sekarang</button>
+    <button class="tab" role="tab" data-view="riwayat" aria-selected="false">Riwayat</button>
+    <button class="tab" role="tab" data-view="tren" aria-selected="false">Tren</button>
+  </nav>
+</header>
+
+<div class="spanduk-demo wrap" id="spandukDemo" hidden>
+  <strong>Mode demo.</strong> Semua judul di halaman ini karangan. Yang kamu simpan tidak akan tersimpan ke mana pun.
+</div>
+
+<main class="wrap utama">
+
+  <!-- =============== TAMPILAN: SEKARANG =============== -->
+  <section class="tampilan" id="viewSekarang" role="tabpanel">
+
+    <section class="kartu hero-kartu">
+      <div class="hero-kepala">
+        <span class="k">Selesai bulan ini</span>
+        <span class="periode" id="labelPeriode"></span>
+      </div>
+      <strong class="hero" id="nilaiSelesai">—</strong>
+      <p class="dim hero-catatan" id="heroCatatan"></p>
+      <div class="arus">
+        <div class="arus-item">
+          <span class="titik sedang" aria-hidden="true"></span>
+          <span class="k">Sedang jalan</span>
+          <strong id="nilaiSedang">—</strong>
+        </div>
+        <div class="arus-item">
+          <span class="titik antre" aria-hidden="true"></span>
+          <span class="k">Di antrean</span>
+          <strong id="nilaiAntre">—</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="kartu">
+      <h2>Tambah judul</h2>
+      <form id="formTambah">
+        <label>
+          <span>Judul</span>
+          <input type="text" id="judul" maxlength="160" placeholder="mis. Dune: Part Two" required autocomplete="off">
+        </label>
+
+        <div class="dua-kolom">
+          <label>
+            <span>Jenis</span>
+            <select id="jenis" required>
+              <option value="film">Film</option>
+              <option value="serial">Serial</option>
+              <option value="buku">Buku</option>
+              <option value="game">Game</option>
+            </select>
+          </label>
+          <div class="label-palsu">
+            <span class="k">Status awal</span>
+            <div class="status-pilih" role="group" aria-label="Status awal">
+              <button type="button" class="status-tombol" data-status="mau" aria-pressed="false">Mau</button>
+              <button type="button" class="status-tombol aktif" data-status="sedang" aria-pressed="true">Sedang</button>
+              <button type="button" class="status-tombol" data-status="selesai" aria-pressed="false">Selesai</button>
+            </div>
+          </div>
+        </div>
+
+        <p class="pesan" id="pesanTambah" role="status" hidden></p>
+        <button type="submit" class="tombol utama lebar" id="tombolSimpan">Simpan</button>
+        <p class="catatan-kecil">
+          Tanggal diisi otomatis dari hari ini. Nilai, catatan, dan tanggalnya bisa diubah
+          belakangan lewat tombol Ubah di tab Riwayat.
+        </p>
+      </form>
+    </section>
+
+    <section class="kartu">
+      <h2>Sedang jalan</h2>
+      <p class="dim sub" id="sedangSub">Diurutkan dari yang paling lama tidak disentuh — yang mandek muncul di atas.</p>
+      <div class="kosong" id="sedangKosong" hidden>
+        <p><strong>Tidak ada yang sedang jalan.</strong></p>
+        <p class="dim">Tambahkan judul di atas dengan status <em>Sedang</em>, atau mulai satu dari antrean di bawah.</p>
+      </div>
+      <ul class="item-list" id="daftarSedang"></ul>
+    </section>
+
+    <section class="kartu">
+      <h2>Antrean</h2>
+      <p class="dim sub" id="antreSub">Yang kamu niat tonton, baca, atau mainkan tapi belum dimulai.</p>
+      <div class="kosong" id="antreKosong" hidden>
+        <p class="dim">Antreannya kosong. Itu bukan masalah — antrean yang terlalu panjang justru bikin enggan mulai.</p>
+      </div>
+      <ul class="item-list" id="daftarAntre"></ul>
+    </section>
+
+  </section>
+
+  <!-- =============== TAMPILAN: RIWAYAT =============== -->
+  <section class="tampilan" id="viewRiwayat" role="tabpanel" hidden>
+
+    <div class="bulan-nav">
+      <button type="button" class="ikon-tombol" id="bulanSebelum" aria-label="Bulan sebelumnya">‹</button>
+      <strong id="bulanTerpilih">—</strong>
+      <button type="button" class="ikon-tombol" id="bulanSesudah" aria-label="Bulan berikutnya">›</button>
+    </div>
+
+    <section class="kartu">
+      <div class="ringkas-tiga">
+        <div><span class="k">Selesai</span><strong id="riwSelesai" class="angka masuk">—</strong></div>
+        <div><span class="k">Ditinggalkan</span><strong id="riwDitinggal" class="angka keluar">—</strong></div>
+        <div><span class="k">Rata-rata nilai</span><strong id="riwRata" class="angka">—</strong></div>
+      </div>
+      <p class="dim catatan-kecil" id="riwBanding"></p>
+    </section>
+
+    <section class="kartu">
+      <div class="saring">
+        <label>
+          <span>Saring jenis</span>
+          <select id="saringJenis">
+            <option value="semua">Semua jenis</option>
+            <option value="film">Film</option>
+            <option value="serial">Serial</option>
+            <option value="buku">Buku</option>
+            <option value="game">Game</option>
+          </select>
+        </label>
+      </div>
+      <div class="kosong" id="riwKosong" hidden>
+        <p class="dim">Belum ada yang selesai atau ditinggalkan di bulan ini.</p>
+      </div>
+      <ul class="item-list" id="daftarRiwayat"></ul>
+    </section>
+
+  </section>
+
+  <!-- =============== TAMPILAN: TREN =============== -->
+  <section class="tampilan" id="viewTren" role="tabpanel" hidden>
+
+    <section class="kartu">
+      <h2>Selesai per bulan</h2>
+      <p class="dim sub">Enam bulan terakhir yang ada datanya. Hanya bulan tertinggi yang diberi angka, supaya grafiknya tetap terbaca.</p>
+      <div class="grafik" id="grafikTren"></div>
+      <div class="kosong" id="trenKosong" hidden>
+        <p class="dim">Grafik tren mulai berguna setelah kamu punya data di lebih dari satu bulan. Sabar — ini yang paling menarik nanti.</p>
+      </div>
+    </section>
+
+    <section class="kartu">
+      <h2>Sebaran jenis</h2>
+      <p class="dim sub">Berapa judul yang sudah selesai per jenis, sepanjang waktu. Semua batang sewarna — yang membawa informasi adalah panjangnya.</p>
+      <div class="grafik" id="grafikJenis"></div>
+      <div class="kosong" id="jenisKosong" hidden>
+        <p class="dim">Belum ada judul yang selesai.</p>
+      </div>
+    </section>
+
+    <section class="kartu">
+      <h2>Sebaran nilai</h2>
+      <p class="dim sub">Berapa judul di tiap bintang. Kalau semuanya menumpuk di satu angka, nilainya tidak lagi membedakan apa pun.</p>
+      <div class="grafik" id="grafikNilai"></div>
+      <div class="kosong" id="nilaiKosong" hidden>
+        <p class="dim">Belum ada judul yang kamu beri nilai.</p>
+      </div>
+    </section>
+
+    <section class="kartu">
+      <h2>Riwayat bulanan</h2>
+      <p class="dim sub">Tabel yang sama, tanpa bergantung warna sama sekali.</p>
+      <div class="tabel-bungkus">
+        <table class="tabel" id="tabelBulanan">
+          <thead>
+            <tr><th scope="col">Bulan</th><th scope="col">Selesai</th><th scope="col">Ditinggal</th><th scope="col">Rata nilai</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="kosong" id="riwayatKosong" hidden>
+        <p class="dim">Riwayat terisi sendiri seiring kamu mencatat.</p>
+      </div>
+    </section>
+
+  </section>
+
+</main>
+
+<!-- =============== DIALOG UBAH ===============
+     Inilah bagian yang tidak ada di aplikasi keuangan: barisnya memang
+     dirancang untuk berubah. <dialog> dipakai supaya fokus keyboard terkunci
+     di dalam formulir dan tombol Escape menutupnya -- keduanya gratis dari
+     browser, tidak perlu ditulis sendiri. -->
+<dialog id="dialogUbah" class="dialog">
+  <!-- Sengaja BUKAN method="dialog". Dengan method itu, menekan Enter di kolom
+       judul akan menutup dialog tanpa menyimpan apa pun -- jebakan yang sama
+       persis seperti tombol Enter di halaman masuk aplikasi keuangan, yang
+       dulu memicu "Masuk" padahal yang dimaksud "Daftar". Di sini Enter
+       menyimpan, karena submit-nya ditangani sendiri. -->
+  <form class="dialog-isi" id="formUbah">
+    <div class="dialog-kepala">
+      <h2>Ubah catatan</h2>
+      <button type="button" class="tutup" id="tutupDialog" aria-label="Tutup">×</button>
+    </div>
+
+    <label>
+      <span>Judul</span>
+      <input type="text" id="ubahJudul" maxlength="160" required autocomplete="off">
+    </label>
+
+    <div class="dua-kolom">
+      <label>
+        <span>Jenis</span>
+        <select id="ubahJenis">
+          <option value="film">Film</option>
+          <option value="serial">Serial</option>
+          <option value="buku">Buku</option>
+          <option value="game">Game</option>
+        </select>
+      </label>
+      <label>
+        <span>Status</span>
+        <select id="ubahStatus">
+          <option value="mau">Mau</option>
+          <option value="sedang">Sedang</option>
+          <option value="selesai">Selesai</option>
+          <option value="ditinggalkan">Ditinggalkan</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="label-palsu">
+      <span class="k">Nilai <em>(opsional — ketuk lagi untuk mengosongkan)</em></span>
+      <div class="bintang-pilih" role="group" aria-label="Nilai" id="ubahNilai">
+        <button type="button" class="bintang" data-nilai="1" aria-pressed="false" aria-label="1 bintang">★</button>
+        <button type="button" class="bintang" data-nilai="2" aria-pressed="false" aria-label="2 bintang">★</button>
+        <button type="button" class="bintang" data-nilai="3" aria-pressed="false" aria-label="3 bintang">★</button>
+        <button type="button" class="bintang" data-nilai="4" aria-pressed="false" aria-label="4 bintang">★</button>
+        <button type="button" class="bintang" data-nilai="5" aria-pressed="false" aria-label="5 bintang">★</button>
+      </div>
+    </div>
+
+    <div class="dua-kolom">
+      <label>
+        <span>Mulai</span>
+        <input type="date" id="ubahMulai">
+      </label>
+      <label>
+        <span>Selesai</span>
+        <input type="date" id="ubahSelesai">
+      </label>
+    </div>
+
+    <label>
+      <span>Catatan <em>(opsional)</em></span>
+      <input type="text" id="ubahCatatan" maxlength="240" placeholder="mis. endingnya kurang, tapi visualnya juara">
+    </label>
+
+    <p class="pesan" id="pesanUbah" role="status" hidden></p>
+
+    <div class="dialog-aksi">
+      <button type="button" class="tombol bahaya" id="tombolHapus">Hapus</button>
+      <button type="submit" class="tombol utama" id="tombolSimpanUbah">Simpan</button>
+    </div>
+  </form>
+</dialog>
+
+<footer class="kaki wrap">
+  <span>Data tersimpan di databasemu sendiri.</span>
+  <a href="https://github.com/rcoalxndr/jurnal">Kode sumber</a>
+</footer>
+
+<script type="module" src="app.js?v=1"></script>
+</body>
+</html>

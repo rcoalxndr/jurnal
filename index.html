@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="id" class="memuat">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jurnal — catat apa yang kamu tonton, baca, dan mainkan</title>
+<meta name="description" content="Jurnal konsumsi pribadi. Film, serial, buku, dan game dalam satu tempat — dari antrean, sedang jalan, sampai selesai.">
+
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Jurnal">
+<meta name="theme-color" content="#EDE7DA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1A1815" media="(prefers-color-scheme: dark)">
+
+<!-- Pratinjau saat tautan dibagikan. Sengaja menunjuk ke demo, bukan halaman
+     masuk -- yang menerima tautan tidak punya akun. -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://rcoalxndr.github.io/jurnal/">
+<meta property="og:title" content="Jurnal — catat apa yang kamu tonton, baca, dan mainkan">
+<meta property="og:description" content="Film, serial, buku, dan game dalam satu tempat — dari antrean, sedang jalan, sampai selesai.">
+<meta property="og:locale" content="id_ID">
+<meta name="twitter:card" content="summary">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Karla:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="style.css?v=1">
+<script>
+  try {
+    var t = localStorage.getItem('theme');
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+</script>
+</head>
+<body class="halaman-masuk">
+
+<button type="button" class="ikon-tombol tema-lepas" id="tombolTema" aria-label="Ganti tema">
+  <span id="ikonTema" aria-hidden="true">☾</span>
+</button>
+
+<!-- Dekorasi: bahasa visual aplikasinya sendiri -- tumpukan kartu seperti
+     antrean tontonan, cincin seperti penilaian, garis putus seperti perjalanan
+     dari "mau" ke "selesai". Murni hiasan, disembunyikan dari pembaca layar. -->
+<div class="dekor" aria-hidden="true">
+  <svg viewBox="0 0 420 420" preserveAspectRatio="xMidYMid slice">
+    <g class="d-cincin">
+      <circle cx="326" cy="98" r="76" fill="none" stroke="var(--accent)" stroke-width="1.5" opacity=".22"/>
+      <circle cx="326" cy="98" r="48" fill="none" stroke="var(--keluar)" stroke-width="1.5" opacity=".3"/>
+      <path d="M326 74 l7.4 15 16.6 2.4-12 11.7 2.8 16.5-14.8-7.8-14.8 7.8 2.8-16.5-12-11.7 16.6-2.4z"
+            fill="var(--masuk)" opacity=".24"/>
+    </g>
+    <path class="d-alir" d="M-20 306 C 90 258, 132 352, 242 296 S 400 216, 460 250"
+          fill="none" stroke="var(--accent)" stroke-width="1.5" opacity=".3"
+          stroke-linecap="round" stroke-dasharray="6 9"/>
+    <g class="d-batang">
+      <rect x="44"  y="196" width="132" height="30" rx="9" fill="var(--keluar)" opacity=".16"/>
+      <rect x="56"  y="238" width="120" height="30" rx="9" fill="var(--keluar)" opacity=".22"/>
+      <rect x="68"  y="280" width="108" height="30" rx="9" fill="var(--masuk)"  opacity=".28"/>
+    </g>
+    <circle class="d-titik d-titik-1" cx="248" cy="140" r="7" fill="var(--keluar)" opacity=".35"/>
+    <circle class="d-titik d-titik-2" cx="82"  cy="140" r="5" fill="var(--masuk)"  opacity=".35"/>
+    <circle class="d-titik d-titik-3" cx="360" cy="322" r="9" fill="var(--accent)" opacity=".22"/>
+  </svg>
+</div>
+
+<main class="masuk-grid">
+
+  <section class="masuk-cerita">
+    <span class="lencana">Jurnal konsumsi</span>
+    <h1>Ingat apa yang sudah kamu tonton.</h1>
+    <p class="lede">Film, serial, buku, dan game dalam satu tempat. Dari antrean, sedang jalan, sampai selesai dan dinilai.</p>
+
+    <ul class="poin">
+      <li>
+        <span class="poin-no">01</span>
+        <div>
+          <strong>Satu tempat untuk empat jenis</strong>
+          <span>Tidak perlu tiga akun di tiga aplikasi berbeda hanya untuk melihat satu pola.</span>
+        </div>
+      </li>
+      <li>
+        <span class="poin-no">02</span>
+        <div>
+          <strong>Punya status, bukan sekadar daftar</strong>
+          <span>Mau, sedang, selesai, ditinggalkan. Judul yang mandek kelihatan dengan sendirinya.</span>
+        </div>
+      </li>
+      <li>
+        <span class="poin-no">03</span>
+        <div>
+          <strong>Datanya milikmu</strong>
+          <span>Tersimpan di databasemu sendiri. Tidak ada teman, tidak ada algoritma, tidak ada iklan.</span>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <div class="masuk-panel">
+    <form class="kartu masuk-form" id="formMasuk">
+      <div class="masuk-kepala">
+        <h2>Masuk</h2>
+        <p class="dim">Pakai email dan kata sandi akunmu.</p>
+      </div>
+
+      <label>
+        <span>Email</span>
+        <input type="email" id="email" autocomplete="email" required placeholder="nama@email.com">
+      </label>
+
+      <label>
+        <span>Kata sandi</span>
+        <input type="password" id="sandi" autocomplete="current-password" required minlength="6" placeholder="minimal 6 karakter">
+      </label>
+
+      <p class="pesan" id="pesanMasuk" role="status" hidden></p>
+
+      <button type="submit" class="tombol utama lebar" id="tombolMasuk">Masuk</button>
+
+      <p class="catatan-kecil">
+        Akunnya sama dengan aplikasi keuangan — keduanya memakai database yang sama.
+        Belum punya akun? <a href="app.html?demo">Coba mode demo</a> dengan data karangan.
+      </p>
+    </form>
+  </div>
+
+</main>
+
+<footer class="masuk-kaki">
+  <span>Dibuat sendiri dengan HTML, CSS, dan Postgres.</span>
+  <a href="https://github.com/rcoalxndr/jurnal">Lihat kodenya</a>
+</footer>
+
+<script type="module" src="login.js?v=1"></script>
+</body>
+</html>
