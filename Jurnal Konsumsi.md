@@ -40,6 +40,20 @@ Ini juga alasan proyeknya layak masuk portofolio: kelas masalah yang benar-benar
 - **Dialog `method="dialog"` itu jebakan.** Dengan atribut itu, Enter di kolom judul menutup dialog tanpa menyimpan — pola yang sama dengan tombol Enter di halaman masuk aplikasi keuangan. Submit ditangani sendiri supaya Enter menyimpan.
 - **Pengaman animasi terbukti bekerja.** Verifikasi kebetulan berjalan saat halaman tidak digambar (`visibilityState: hidden`, jadi `requestAnimationFrame` mati total) dan semua angka serta batang tetap tampil benar. Ini persis kondisi yang dulu bikin angka utama aplikasi keuangan tidak pernah muncul.
 
+## Revisi tampilan (23 Agustus 2026)
+
+Permintaan Rico: lebih *fun*, sesuai konteks film/buku/game, siluet di halaman masuk, tata letak yang tidak sama dengan aplikasi keuangan, dan teks yang lebih berisi.
+
+Yang dikerjakan: **sistem siluet** untuk empat jenis (dipakai di punggung kartu, pemilih jenis, chip saringan, label grafik, dan dekorasi), **rak** empat jenis di hero yang meredup kalau jenisnya nol bulan ini, **tata letak dua kolom 1000px** di tab Sekarang, **bintang yang bisa diketuk langsung** di daftar Riwayat lengkap dengan arti tiap nilai, serta **teks kontekstual** yang berubah mengikuti pilihan dan data.
+
+Halaman masuk dapat pita seluloid yang bergeser (dibuat dari `repeating-linear-gradient`, nol permintaan jaringan), empat siluet melayang dengan kecepatan berbeda, dan alur `Mau → Sedang → Selesai` dengan titik yang berjalan menyusurinya.
+
+**Yang ditolak masuk:** warna per jenis. Diganti bentuk — lihat alasannya di `README.md`.
+
+**Temuan terukur:** tombol aksi di daftar cuma **29px** tingginya karena `.tombol.kecil` memakai `min-height: 0`. Itu tombol yang paling sering diketuk dari HP. Dinaikkan ke 44px.
+
+**Catatan alat, bukan bug aplikasi:** saat panel browser tersembunyi, perhitungan gaya berhenti total — bahkan `element.style.opacity` yang diset langsung tetap terbaca nilai lama. Nilai saat halaman pertama dimuat tetap benar. Jadi jangan percaya `getComputedStyle` setelah mengubah kelas lewat Console kalau panelnya tidak terlihat; muat ulang halamannya.
+
 ## Gerbang sebelum menambah fitur
 
 Setelah **3 minggu**: kalau entri yang tercatat **kurang dari 8**, berhenti. Jangan tambah fitur, jangan tambah API judul otomatis, jangan tambah jenis baru. Angka di bawah itu artinya kebiasaan mencatatnya tidak terbentuk, dan fitur baru tidak akan memperbaikinya.

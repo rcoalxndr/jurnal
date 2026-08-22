@@ -20,7 +20,8 @@
 <meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="style.css?v=1">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Karla:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="style.css?v=2">
 <script>
   try {
     var t = localStorage.getItem('theme');
@@ -48,21 +49,51 @@
 </header>
 
 <div class="spanduk-demo wrap" id="spandukDemo" hidden>
-  <strong>Mode demo.</strong> Semua judul di halaman ini karangan. Yang kamu simpan tidak akan tersimpan ke mana pun.
+  <strong>Mode demo.</strong> Semua judul di halaman ini karangan. Tombolnya berfungsi, tapi tidak ada yang tersimpan ke mana pun.
 </div>
 
 <main class="wrap utama">
 
-  <!-- =============== TAMPILAN: SEKARANG =============== -->
-  <section class="tampilan" id="viewSekarang" role="tabpanel">
+  <!-- =============== TAMPILAN: SEKARANG ===============
+       Dua kolom di layar lebar: kiri untuk menambah, kanan untuk yang sedang
+       berjalan. Rak di atas membentang penuh. Sengaja tidak meniru satu kolom
+       sempit aplikasi keuangan -- yang ini punya empat jenis yang perlu
+       terlihat berdampingan. -->
+  <section class="tampilan sekarang-grid" id="viewSekarang" role="tabpanel">
 
-    <section class="kartu hero-kartu">
+    <section class="kartu rak-kartu">
       <div class="hero-kepala">
         <span class="k">Selesai bulan ini</span>
         <span class="periode" id="labelPeriode"></span>
       </div>
-      <strong class="hero" id="nilaiSelesai">—</strong>
+
+      <div class="rak-utama">
+        <strong class="hero" id="nilaiSelesai">—</strong>
+
+        <!-- Rak: empat jenis berdampingan. Ikon yang jenisnya kosong bulan ini
+             tampil redup, jadi bentuk raknya sendiri sudah bercerita. -->
+        <ul class="rak" id="rak">
+          <li class="rak-slot" data-jenis="film">
+            <svg class="ikon rak-ikon" aria-hidden="true"><use href="#ik-film"/></svg>
+            <b id="rakFilm">0</b><span>Film</span>
+          </li>
+          <li class="rak-slot" data-jenis="serial">
+            <svg class="ikon rak-ikon" aria-hidden="true"><use href="#ik-serial"/></svg>
+            <b id="rakSerial">0</b><span>Serial</span>
+          </li>
+          <li class="rak-slot" data-jenis="buku">
+            <svg class="ikon rak-ikon" aria-hidden="true"><use href="#ik-buku"/></svg>
+            <b id="rakBuku">0</b><span>Buku</span>
+          </li>
+          <li class="rak-slot" data-jenis="game">
+            <svg class="ikon rak-ikon" aria-hidden="true"><use href="#ik-game"/></svg>
+            <b id="rakGame">0</b><span>Game</span>
+          </li>
+        </ul>
+      </div>
+
       <p class="dim hero-catatan" id="heroCatatan"></p>
+
       <div class="arus">
         <div class="arus-item">
           <span class="titik sedang" aria-hidden="true"></span>
@@ -77,24 +108,33 @@
       </div>
     </section>
 
-    <section class="kartu">
-      <h2>Tambah judul</h2>
-      <form id="formTambah">
-        <label>
-          <span>Judul</span>
-          <input type="text" id="judul" maxlength="160" placeholder="mis. Dune: Part Two" required autocomplete="off">
-        </label>
-
-        <div class="dua-kolom">
+    <div class="kolom-kiri">
+      <section class="kartu">
+        <h2>Tambah judul</h2>
+        <form id="formTambah">
           <label>
-            <span>Jenis</span>
-            <select id="jenis" required>
-              <option value="film">Film</option>
-              <option value="serial">Serial</option>
-              <option value="buku">Buku</option>
-              <option value="game">Game</option>
-            </select>
+            <span>Judul</span>
+            <input type="text" id="judul" maxlength="160" placeholder="mis. Dune: Part Two" required autocomplete="off">
           </label>
+
+          <div class="label-palsu">
+            <span class="k">Jenis</span>
+            <div class="jenis-pilih" role="group" aria-label="Jenis" id="jenisPilih">
+              <button type="button" class="jenis-tombol aktif" data-jenis="film" aria-pressed="true">
+                <svg class="ikon" aria-hidden="true"><use href="#ik-film"/></svg><span>Film</span>
+              </button>
+              <button type="button" class="jenis-tombol" data-jenis="serial" aria-pressed="false">
+                <svg class="ikon" aria-hidden="true"><use href="#ik-serial"/></svg><span>Serial</span>
+              </button>
+              <button type="button" class="jenis-tombol" data-jenis="buku" aria-pressed="false">
+                <svg class="ikon" aria-hidden="true"><use href="#ik-buku"/></svg><span>Buku</span>
+              </button>
+              <button type="button" class="jenis-tombol" data-jenis="game" aria-pressed="false">
+                <svg class="ikon" aria-hidden="true"><use href="#ik-game"/></svg><span>Game</span>
+              </button>
+            </div>
+          </div>
+
           <div class="label-palsu">
             <span class="k">Status awal</span>
             <div class="status-pilih" role="group" aria-label="Status awal">
@@ -103,40 +143,41 @@
               <button type="button" class="status-tombol" data-status="selesai" aria-pressed="false">Selesai</button>
             </div>
           </div>
+
+          <p class="pesan" id="pesanTambah" role="status" hidden></p>
+          <button type="submit" class="tombol utama lebar" id="tombolSimpan">Simpan</button>
+          <p class="catatan-kecil" id="petunjukTambah"></p>
+        </form>
+      </section>
+    </div>
+
+    <div class="kolom-kanan">
+      <section class="kartu">
+        <h2>Sedang jalan</h2>
+        <p class="dim sub" id="sedangSub">Yang paling lama tidak disentuh muncul di atas.</p>
+        <div class="kosong" id="sedangKosong" hidden>
+          <svg class="ikon-kosong" aria-hidden="true"><use href="#ik-serial"/></svg>
+          <p><strong>Tidak ada yang sedang jalan.</strong></p>
+          <p class="dim">Layar kosong ini sebenarnya kabar baik — tidak ada yang mangkrak. Mulai satu dari antrean di bawah.</p>
         </div>
+        <ul class="item-list" id="daftarSedang"></ul>
+      </section>
 
-        <p class="pesan" id="pesanTambah" role="status" hidden></p>
-        <button type="submit" class="tombol utama lebar" id="tombolSimpan">Simpan</button>
-        <p class="catatan-kecil">
-          Tanggal diisi otomatis dari hari ini. Nilai, catatan, dan tanggalnya bisa diubah
-          belakangan lewat tombol Ubah di tab Riwayat.
-        </p>
-      </form>
-    </section>
-
-    <section class="kartu">
-      <h2>Sedang jalan</h2>
-      <p class="dim sub" id="sedangSub">Diurutkan dari yang paling lama tidak disentuh — yang mandek muncul di atas.</p>
-      <div class="kosong" id="sedangKosong" hidden>
-        <p><strong>Tidak ada yang sedang jalan.</strong></p>
-        <p class="dim">Tambahkan judul di atas dengan status <em>Sedang</em>, atau mulai satu dari antrean di bawah.</p>
-      </div>
-      <ul class="item-list" id="daftarSedang"></ul>
-    </section>
-
-    <section class="kartu">
-      <h2>Antrean</h2>
-      <p class="dim sub" id="antreSub">Yang kamu niat tonton, baca, atau mainkan tapi belum dimulai.</p>
-      <div class="kosong" id="antreKosong" hidden>
-        <p class="dim">Antreannya kosong. Itu bukan masalah — antrean yang terlalu panjang justru bikin enggan mulai.</p>
-      </div>
-      <ul class="item-list" id="daftarAntre"></ul>
-    </section>
+      <section class="kartu">
+        <h2>Antrean</h2>
+        <p class="dim sub" id="antreSub">Sudah diniatkan, belum dimulai.</p>
+        <div class="kosong" id="antreKosong" hidden>
+          <svg class="ikon-kosong" aria-hidden="true"><use href="#ik-buku"/></svg>
+          <p class="dim">Antreannya kosong, dan itu tidak apa-apa. Antrean yang terlalu panjang justru bikin enggan mulai.</p>
+        </div>
+        <ul class="item-list" id="daftarAntre"></ul>
+      </section>
+    </div>
 
   </section>
 
   <!-- =============== TAMPILAN: RIWAYAT =============== -->
-  <section class="tampilan" id="viewRiwayat" role="tabpanel" hidden>
+  <section class="tampilan sempit" id="viewRiwayat" role="tabpanel" hidden>
 
     <div class="bulan-nav">
       <button type="button" class="ikon-tombol" id="bulanSebelum" aria-label="Bulan sebelumnya">‹</button>
@@ -154,28 +195,35 @@
     </section>
 
     <section class="kartu">
-      <div class="saring">
-        <label>
-          <span>Saring jenis</span>
-          <select id="saringJenis">
-            <option value="semua">Semua jenis</option>
-            <option value="film">Film</option>
-            <option value="serial">Serial</option>
-            <option value="buku">Buku</option>
-            <option value="game">Game</option>
-          </select>
-        </label>
+      <div class="saring-chip" role="group" aria-label="Saring jenis" id="saringJenis">
+        <button type="button" class="chip aktif" data-jenis="semua" aria-pressed="true">Semua</button>
+        <button type="button" class="chip" data-jenis="film" aria-pressed="false">
+          <svg class="ikon" aria-hidden="true"><use href="#ik-film"/></svg><span>Film</span>
+        </button>
+        <button type="button" class="chip" data-jenis="serial" aria-pressed="false">
+          <svg class="ikon" aria-hidden="true"><use href="#ik-serial"/></svg><span>Serial</span>
+        </button>
+        <button type="button" class="chip" data-jenis="buku" aria-pressed="false">
+          <svg class="ikon" aria-hidden="true"><use href="#ik-buku"/></svg><span>Buku</span>
+        </button>
+        <button type="button" class="chip" data-jenis="game" aria-pressed="false">
+          <svg class="ikon" aria-hidden="true"><use href="#ik-game"/></svg><span>Game</span>
+        </button>
       </div>
+
+      <p class="dim sub">Bintangnya bisa langsung diketuk di daftar — tidak perlu buka dialog ubah.</p>
+
       <div class="kosong" id="riwKosong" hidden>
-        <p class="dim">Belum ada yang selesai atau ditinggalkan di bulan ini.</p>
+        <svg class="ikon-kosong" aria-hidden="true"><use href="#ik-film"/></svg>
+        <p class="dim" id="riwKosongTeks">Belum ada yang selesai atau ditinggalkan di bulan ini.</p>
       </div>
-      <ul class="item-list" id="daftarRiwayat"></ul>
+      <ul class="item-list riwayat-list" id="daftarRiwayat"></ul>
     </section>
 
   </section>
 
   <!-- =============== TAMPILAN: TREN =============== -->
-  <section class="tampilan" id="viewTren" role="tabpanel" hidden>
+  <section class="tampilan sempit" id="viewTren" role="tabpanel" hidden>
 
     <section class="kartu">
       <h2>Selesai per bulan</h2>
@@ -188,7 +236,7 @@
 
     <section class="kartu">
       <h2>Sebaran jenis</h2>
-      <p class="dim sub">Berapa judul yang sudah selesai per jenis, sepanjang waktu. Semua batang sewarna — yang membawa informasi adalah panjangnya.</p>
+      <p class="dim sub" id="jenisSub">Berapa judul yang selesai per jenis, sepanjang waktu.</p>
       <div class="grafik" id="grafikJenis"></div>
       <div class="kosong" id="jenisKosong" hidden>
         <p class="dim">Belum ada judul yang selesai.</p>
@@ -197,7 +245,7 @@
 
     <section class="kartu">
       <h2>Sebaran nilai</h2>
-      <p class="dim sub">Berapa judul di tiap bintang. Kalau semuanya menumpuk di satu angka, nilainya tidak lagi membedakan apa pun.</p>
+      <p class="dim sub" id="nilaiSub">Berapa judul di tiap bintang.</p>
       <div class="grafik" id="grafikNilai"></div>
       <div class="kosong" id="nilaiKosong" hidden>
         <p class="dim">Belum ada judul yang kamu beri nilai.</p>
@@ -206,7 +254,7 @@
 
     <section class="kartu">
       <h2>Riwayat bulanan</h2>
-      <p class="dim sub">Tabel yang sama, tanpa bergantung warna sama sekali.</p>
+      <p class="dim sub">Tabel yang sama, tanpa bergantung warna maupun bentuk.</p>
       <div class="tabel-bungkus">
         <table class="tabel" id="tabelBulanan">
           <thead>
@@ -228,16 +276,16 @@
      Inilah bagian yang tidak ada di aplikasi keuangan: barisnya memang
      dirancang untuk berubah. <dialog> dipakai supaya fokus keyboard terkunci
      di dalam formulir dan tombol Escape menutupnya -- keduanya gratis dari
-     browser, tidak perlu ditulis sendiri. -->
+     browser, tidak perlu ditulis sendiri.
+
+     Sengaja BUKAN method="dialog". Dengan atribut itu, menekan Enter di kolom
+     judul akan menutup dialog tanpa menyimpan apa pun -- jebakan yang sama
+     persis seperti tombol Enter di halaman masuk aplikasi keuangan. Di sini
+     Enter menyimpan, karena submit-nya ditangani sendiri. -->
 <dialog id="dialogUbah" class="dialog">
-  <!-- Sengaja BUKAN method="dialog". Dengan method itu, menekan Enter di kolom
-       judul akan menutup dialog tanpa menyimpan apa pun -- jebakan yang sama
-       persis seperti tombol Enter di halaman masuk aplikasi keuangan, yang
-       dulu memicu "Masuk" padahal yang dimaksud "Daftar". Di sini Enter
-       menyimpan, karena submit-nya ditangani sendiri. -->
   <form class="dialog-isi" id="formUbah">
     <div class="dialog-kepala">
-      <h2>Ubah catatan</h2>
+      <h2 id="dialogJudul">Ubah catatan</h2>
       <button type="button" class="tutup" id="tutupDialog" aria-label="Tutup">×</button>
     </div>
 
@@ -246,26 +294,33 @@
       <input type="text" id="ubahJudul" maxlength="160" required autocomplete="off">
     </label>
 
-    <div class="dua-kolom">
-      <label>
-        <span>Jenis</span>
-        <select id="ubahJenis">
-          <option value="film">Film</option>
-          <option value="serial">Serial</option>
-          <option value="buku">Buku</option>
-          <option value="game">Game</option>
-        </select>
-      </label>
-      <label>
-        <span>Status</span>
-        <select id="ubahStatus">
-          <option value="mau">Mau</option>
-          <option value="sedang">Sedang</option>
-          <option value="selesai">Selesai</option>
-          <option value="ditinggalkan">Ditinggalkan</option>
-        </select>
-      </label>
+    <div class="label-palsu">
+      <span class="k">Jenis</span>
+      <div class="jenis-pilih kecil-ikon" role="group" aria-label="Jenis" id="ubahJenis">
+        <button type="button" class="jenis-tombol" data-jenis="film" aria-pressed="false">
+          <svg class="ikon" aria-hidden="true"><use href="#ik-film"/></svg><span>Film</span>
+        </button>
+        <button type="button" class="jenis-tombol" data-jenis="serial" aria-pressed="false">
+          <svg class="ikon" aria-hidden="true"><use href="#ik-serial"/></svg><span>Serial</span>
+        </button>
+        <button type="button" class="jenis-tombol" data-jenis="buku" aria-pressed="false">
+          <svg class="ikon" aria-hidden="true"><use href="#ik-buku"/></svg><span>Buku</span>
+        </button>
+        <button type="button" class="jenis-tombol" data-jenis="game" aria-pressed="false">
+          <svg class="ikon" aria-hidden="true"><use href="#ik-game"/></svg><span>Game</span>
+        </button>
+      </div>
     </div>
+
+    <label>
+      <span>Status</span>
+      <select id="ubahStatus">
+        <option value="mau">Mau</option>
+        <option value="sedang">Sedang</option>
+        <option value="selesai">Selesai</option>
+        <option value="ditinggalkan">Ditinggalkan</option>
+      </select>
+    </label>
 
     <div class="label-palsu">
       <span class="k">Nilai <em>(opsional — ketuk lagi untuk mengosongkan)</em></span>
@@ -276,6 +331,7 @@
         <button type="button" class="bintang" data-nilai="4" aria-pressed="false" aria-label="4 bintang">★</button>
         <button type="button" class="bintang" data-nilai="5" aria-pressed="false" aria-label="5 bintang">★</button>
       </div>
+      <span class="bintang-label" id="labelNilai" aria-live="polite">Belum dinilai</span>
     </div>
 
     <div class="dua-kolom">
@@ -308,6 +364,6 @@
   <a href="https://github.com/rcoalxndr/jurnal">Kode sumber</a>
 </footer>
 
-<script type="module" src="app.js?v=1"></script>
+<script type="module" src="app.js?v=2"></script>
 </body>
 </html>

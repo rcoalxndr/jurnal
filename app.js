@@ -1,9 +1,26 @@
-import { db, el, tampilkanPesan, pasangTombolTema, selesaiMemuat, geraknyaDikurangi } from "./bersama.js?v=1";
+import {
+  db, el, tampilkanPesan, pasangTombolTema, selesaiMemuat, geraknyaDikurangi,
+  pasangSprite, ikon,
+} from "./bersama.js?v=2";
+
+/* Siluet disuntikkan sebelum apa pun digambar, supaya <use> di HTML punya
+   simbol untuk ditunjuk sejak frame pertama. */
+pasangSprite();
 
 const JENIS = { film: "Film", serial: "Serial", buku: "Buku", game: "Game" };
 const URUT_JENIS = ["film", "serial", "buku", "game"];
 
 const STATUS = { mau: "Mau", sedang: "Sedang", selesai: "Selesai", ditinggalkan: "Ditinggalkan" };
+
+/* Bintang tanpa keterangan itu ambigu -- 3 dari 5 artinya apa? Label ini
+   membuat penilaiannya konsisten dari bulan ke bulan. */
+const ARTI_NILAI = {
+  1: "Buang waktu",
+  2: "Ya sudahlah",
+  3: "Bagus",
+  4: "Bagus banget",
+  5: "Salah satu terbaik",
+};
 
 const NAMA_BULAN = ["Januari", "Februari", "Maret", "April", "Mei", "Juni",
   "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
@@ -53,12 +70,38 @@ function umurHari(cap) {
 
 let semuaItem = [];
 let statusAwal = "sedang";
+let jenisTerpilih = "film";
 let bulanRiwayat = kunciBulanIni();
 let jenisTersaring = "semua";
 let sudahSiap = false;
 let modeDemo = false;
 let sedangDiubah = null;   /* baris yang terbuka di dialog */
 let nilaiDiubah = null;    /* nilai bintang yang dipilih di dialog */
+let jenisDiubah = "film";  /* jenis yang dipilih di dialog */
+
+/* Sekelompok tombol yang berperilaku seperti radio: satu aktif, sisanya tidak.
+   Dipakai untuk pemilih jenis, status awal, dan chip saringan -- tiga tempat
+   dengan perilaku identik, jadi ditulis sekali. */
+function pasangPilihan(wadah, kelasTombol, saatPilih) {
+  wadah.querySelectorAll("." + kelasTombol).forEach((b) => {
+    b.addEventListener("click", () => {
+      wadah.querySelectorAll("." + kelasTombol).forEach((o) => {
+        const aktif = o === b;
+        o.classList.toggle("aktif", aktif);
+        o.setAttribute("aria-pressed", String(aktif));
+      });
+      saatPilih(b.dataset.jenis || b.dataset.status);
+    });
+  });
+}
+
+function setelPilihan(wadah, kelasTombol, nilai) {
+  wadah.querySelectorAll("." + kelasTombol).forEach((o) => {
+    const aktif = (o.dataset.jenis || o.dataset.status) === nilai;
+    o.classList.toggle("aktif", aktif);
+    o.setAttribute("aria-pressed", String(aktif));
+  });
+}
 
 function mulai() {
   if (!sudahSiap) { siapkanUI(); sudahSiap = true; }
@@ -74,25 +117,15 @@ function siapkanUI() {
     t.addEventListener("click", () => pindahTampilan(t.dataset.view));
   });
 
-  document.querySelectorAll(".status-tombol").forEach((b) => {
-    b.addEventListener("click", () => {
-      statusAwal = b.dataset.status;
-      document.querySelectorAll(".status-tombol").forEach((o) => {
-        const aktif = o === b;
-        o.classList.toggle("aktif", aktif);
-        o.setAttribute("aria-pressed", String(aktif));
-      });
-    });
-  });
+  pasangPilihan(el("formTambah"), "status-tombol", (v) => { statusAwal = v; gambarPetunjukTambah(); });
+  pasangPilihan(el("jenisPilih"), "jenis-tombol", (v) => { jenisTerpilih = v; gambarPetunjukTambah(); });
+  gambarPetunjukTambah();
 
   el("formTambah").addEventListener("submit", tambahItem);
 
   el("bulanSebelum").addEventListener("click", () => { bulanRiwayat = geserBulan(bulanRiwayat, -1); gambarRiwayat(); });
   el("bulanSesudah").addEventListener("click", () => { bulanRiwayat = geserBulan(bulanRiwayat, 1); gambarRiwayat(); });
-  el("saringJenis").addEventListener("change", () => {
-    jenisTersaring = el("saringJenis").value;
-    gambarRiwayat();
-  });
+  pasangPilihan(el("saringJenis"), "chip", (v) => { jenisTersaring = v; gambarRiwayat(); });
 
   siapkanDialog();
 }
@@ -109,6 +142,19 @@ function pindahTampilan(nama) {
   if (nama === "riwayat") gambarRiwayat();
   if (nama === "tren") gambarTren();
   window.scrollTo({ top: 0, behavior: "instant" });
+}
+
+/* Kalimat di bawah tombol Simpan berubah mengikuti pilihan, supaya orang tahu
+   persis apa yang akan terjadi sebelum menekannya. Ini menggantikan penjelasan
+   panjang yang sama untuk semua keadaan. */
+function gambarPetunjukTambah() {
+  const jenis = JENIS[jenisTerpilih].toLowerCase();
+  const teks = {
+    mau: `Masuk antrean. Tanggal mulai dikosongkan sampai kamu benar-benar mulai.`,
+    sedang: `Ditandai mulai hari ini, dan akan mengingatkanmu kalau ${jenis} ini diam terlalu lama.`,
+    selesai: `Langsung ditutup hari ini. Nilainya bisa diketuk belakangan di tab Riwayat.`,
+  };
+  el("petunjukTambah").textContent = teks[statusAwal];
 }
 
 /* ---------------- Data ----------------
@@ -143,7 +189,7 @@ async function tambahItem(e) {
      Semua bisa dikoreksi belakangan lewat dialog Ubah. */
   const baris = {
     judul,
-    jenis: el("jenis").value,
+    jenis: jenisTerpilih,
     status: statusAwal,
     mulai_pada: statusAwal === "mau" ? null : hariIni(),
     selesai_pada: statusAwal === "selesai" ? hariIni() : null,
@@ -236,6 +282,8 @@ function siapkanDialog() {
 
   el("tutupDialog").addEventListener("click", () => dialog.close());
 
+  pasangPilihan(el("ubahJenis"), "jenis-tombol", (v) => { jenisDiubah = v; });
+
   document.querySelectorAll(".bintang").forEach((b) => {
     b.addEventListener("click", () => {
       const n = Number(b.dataset.nilai);
@@ -271,14 +319,17 @@ function catBintang() {
     b.classList.toggle("aktif", aktif);
     b.setAttribute("aria-pressed", String(aktif));
   });
+  el("labelNilai").textContent = nilaiDiubah ? ARTI_NILAI[nilaiDiubah] : "Belum dinilai";
 }
 
 function bukaDialog(r) {
   sedangDiubah = r;
   nilaiDiubah = r.nilai ?? null;
 
+  el("dialogJudul").textContent = "Ubah " + JENIS[r.jenis].toLowerCase();
   el("ubahJudul").value = r.judul;
-  el("ubahJenis").value = r.jenis;
+  jenisDiubah = r.jenis;
+  setelPilihan(el("ubahJenis"), "jenis-tombol", r.jenis);
   el("ubahStatus").value = r.status;
   el("ubahMulai").value = r.mulai_pada || "";
   el("ubahSelesai").value = r.selesai_pada || "";
@@ -299,7 +350,7 @@ async function simpanUbahan() {
   const status = el("ubahStatus").value;
   const tambalan = {
     judul,
-    jenis: el("ubahJenis").value,
+    jenis: jenisDiubah,
     status,
     nilai: nilaiDiubah,
     catatan: el("ubahCatatan").value.trim() || null,
@@ -338,17 +389,27 @@ function rataNilai(rows) {
   return dinilai.reduce((t, r) => t + r.nilai, 0) / dinilai.length;
 }
 
+/* Elemen ketiga adalah kunci jenisnya, dipakai grafik untuk memasang siluet
+   di samping labelnya. */
 function perJenis(rows) {
-  const m = new Map();
-  for (const r of rows) m.set(r.jenis, (m.get(r.jenis) || 0) + 1);
-  return URUT_JENIS.filter((j) => m.has(j)).map((j) => [JENIS[j], m.get(j)])
+  const m = hitungJenis(rows);
+  return URUT_JENIS.filter((j) => m.get(j) > 0).map((j) => [JENIS[j], m.get(j), j])
     .sort((a, b) => b[1] - a[1]);
+}
+
+function hitungJenis(rows) {
+  const m = new Map(URUT_JENIS.map((j) => [j, 0]));
+  for (const r of rows) m.set(r.jenis, (m.get(r.jenis) || 0) + 1);
+  return m;
 }
 
 function perNilai(rows) {
   const m = new Map();
   for (const r of rows) if (r.nilai) m.set(r.nilai, (m.get(r.nilai) || 0) + 1);
-  return [5, 4, 3, 2, 1].filter((n) => m.has(n)).map((n) => ["★".repeat(n), m.get(n)]);
+  /* Bintang plus artinya. Deretan bintang saja menuntut orang menghitung
+     jumlahnya; katanya langsung terbaca. */
+  return [5, 4, 3, 2, 1].filter((n) => m.has(n))
+    .map((n) => [`${"★".repeat(n)} ${ARTI_NILAI[n]}`, m.get(n)]);
 }
 
 function bulanBerdata() {
@@ -383,14 +444,18 @@ function batangHorizontal(wadah, data, { format = judulan } = {}) {
   const daftar = document.createElement("ul");
   daftar.className = "batang-list";
 
-  data.forEach(([nama, nilai], i) => {
+  data.forEach(([nama, nilai, jenisKunci], i) => {
     const li = document.createElement("li");
     li.style.setProperty("--tunda", i * 55 + "ms");
 
     const kepala = document.createElement("div");
     kepala.className = "batang-kepala";
     const kiri = document.createElement("span");
-    kiri.textContent = nama;
+    kiri.className = "batang-label-kiri";
+    /* Siluet jenis ikut ditampilkan di label -- bentuknya lebih cepat dikenali
+       daripada membaca kata, dan batangnya sendiri tetap sewarna. */
+    if (jenisKunci) kiri.append(ikon(jenisKunci, "ikon"));
+    kiri.append(document.createTextNode(nama));
     const kanan = document.createElement("span");
     kanan.className = "batang-nilai";
     kanan.textContent = format(nilai);
@@ -537,11 +602,29 @@ function gambarSekarang() {
   el("nilaiSedang").textContent = String(sedang.length);
   el("nilaiAntre").textContent = String(antre.length);
 
+  /* Rak: keempat jenis selalu ditampilkan, termasuk yang nol. Justru yang nol
+     itu informasinya -- sebulan tanpa satu buku pun kelihatan sekali. */
+  const hitungan = hitungJenis(selesaiBulanIni);
+  const idRak = { film: "rakFilm", serial: "rakSerial", buku: "rakBuku", game: "rakGame" };
+  for (const j of URUT_JENIS) {
+    const n = hitungan.get(j);
+    const node = el(idRak[j]);
+    node.textContent = String(n);
+    const slot = node.closest(".rak-slot");
+    slot.classList.toggle("terisi", n > 0);
+    slot.classList.toggle("rak-kosong", n === 0);
+    slot.title = `${n} ${JENIS[j].toLowerCase()} selesai bulan ini`;
+  }
+
+  const mandek = sedang.filter((r) => umurHari(r.diubah_pada) >= 21).length;
+
   const catatan = el("heroCatatan");
   if (!semuaItem.length) {
-    catatan.textContent = "Belum ada apa pun di jurnal ini.";
+    catatan.textContent = "Jurnalnya masih kosong. Tambah satu judul yang lagi kamu tonton sekarang — tidak harus yang baru.";
   } else if (!selesaiBulanIni.length) {
-    catatan.textContent = "Belum ada yang selesai bulan ini.";
+    catatan.textContent = mandek
+      ? `Belum ada yang selesai bulan ini, dan ${mandek} judul sudah lama diam. Selesaikan satu, atau tinggalkan dengan tenang.`
+      : "Belum ada yang selesai bulan ini. Masih ada waktu.";
   } else {
     const rata = rataNilai(selesaiBulanIni);
     const sebaran = perJenis(selesaiBulanIni);
@@ -554,7 +637,8 @@ function gambarSekarang() {
     else depan = `Terbanyak ${sebaran[0][0].toLowerCase()} (${sebaran[0][1]})`;
 
     catatan.textContent = depan +
-      (rata ? ` · rata-rata nilai ${rata.toFixed(1).replace(".", ",")}` : "");
+      (rata ? ` · rata-rata nilai ${rata.toFixed(1).replace(".", ",")}` : "") +
+      (mandek ? ` · ${mandek} judul lagi mangkrak` : "");
   }
 
   gambarItem(el("daftarSedang"), sedang, "sedang", el("sedangKosong"));
@@ -595,6 +679,16 @@ function gambarRiwayat() {
     .filter((r) => jenisTersaring === "semua" || r.jenis === jenisTersaring)
     .sort((a, b) => (a.selesai_pada > b.selesai_pada ? -1 : 1));
 
+  /* Keadaan kosong ikut menyesuaikan saringan -- "tidak ada apa-apa" dan
+     "tidak ada buku" itu dua kabar yang berbeda, dan yang kedua punya jalan
+     keluar yang jelas. */
+  const nama = labelBulan(bulanRiwayat);
+  el("riwKosongTeks").textContent = jenisTersaring === "semua"
+    ? `Tidak ada yang berakhir di ${nama}. Bulan yang tenang, atau memang lupa dicatat?`
+    : `Tidak ada ${JENIS[jenisTersaring].toLowerCase()} yang berakhir di ${nama}. Coba saringan Semua.`;
+  el("riwKosong").querySelector("use")
+    .setAttribute("href", "#ik-" + (jenisTersaring === "semua" ? "film" : jenisTersaring));
+
   gambarItem(el("daftarRiwayat"), tampil, "riwayat", el("riwKosong"));
 }
 
@@ -610,9 +704,34 @@ function gambarTren() {
   el("jenisKosong").hidden = jenis.length > 0;
   batangHorizontal(el("grafikJenis"), jenis);
 
+  /* Kalimat yang membacakan grafiknya. Angka sudah ada di batang; yang belum
+     ada adalah kesimpulannya. */
+  const subJenis = el("jenisSub");
+  if (jenis.length >= 2) {
+    const porsi = Math.round((jenis[0][1] / selesaiSemua.length) * 100);
+    const belum = URUT_JENIS.filter((j) => !jenis.some((d) => d[2] === j));
+    subJenis.textContent =
+      `${jenis[0][0]} mengambil ${porsi}% dari semua yang kamu selesaikan` +
+      (belum.length ? `, dan belum ada satu pun ${belum.map((j) => JENIS[j].toLowerCase()).join(" atau ")}.` : ".");
+  } else {
+    subJenis.textContent = "Berapa judul yang selesai per jenis, sepanjang waktu.";
+  }
+
   const nilai = perNilai(selesaiSemua);
   el("nilaiKosong").hidden = nilai.length > 0;
   batangHorizontal(el("grafikNilai"), nilai);
+
+  const rataSemua = rataNilai(selesaiSemua);
+  const subNilai = el("nilaiSub");
+  if (nilai.length === 1) {
+    subNilai.textContent = `Semua judul kamu beri nilai sama. Kalau begitu, nilainya tidak lagi membedakan apa pun.`;
+  } else if (rataSemua >= 4.3) {
+    subNilai.textContent = `Rata-rata ${rataSemua.toFixed(1).replace(".", ",")} — kamu murah hati, atau memang pintar memilih.`;
+  } else if (rataSemua && rataSemua <= 2.7) {
+    subNilai.textContent = `Rata-rata ${rataSemua.toFixed(1).replace(".", ",")} — banyak yang mengecewakan. Mungkin cara memilihnya yang perlu diubah.`;
+  } else {
+    subNilai.textContent = "Berapa judul di tiap bintang.";
+  }
 
   /* Tabel riwayat: kanal identitas yang tidak bergantung warna sama sekali. */
   const tbody = el("tabelBulanan").querySelector("tbody");
@@ -655,12 +774,20 @@ function gambarItem(wadah, rows, konteks, nodeKosong) {
     const li = document.createElement("li");
     li.style.setProperty("--tunda", Math.min(i, 8) * 40 + "ms");
 
+    /* Punggung: siluet jenis di sisi kiri, seperti punggung buku di rak.
+       Ini pembeda visual paling kentara dari daftar transaksi keuangan. */
+    const punggung = document.createElement("div");
+    punggung.className = "it-punggung";
+    punggung.append(ikon(r.jenis, "ikon"));
+
     const info = document.createElement("div");
     info.className = "it-info";
 
     const baris1 = document.createElement("div");
     baris1.className = "it-atas";
 
+    /* Ikon sudah ada di punggung, tapi teksnya tetap ditulis -- siluet itu
+       aria-hidden, dan pembaca layar harus tetap dapat jenisnya. */
     const lencana = document.createElement("span");
     lencana.className = "it-jenis";
     lencana.textContent = JENIS[r.jenis];
@@ -674,8 +801,31 @@ function gambarItem(wadah, rows, konteks, nodeKosong) {
 
     const meta = document.createElement("span");
     meta.className = "it-meta";
-    meta.textContent = teksMeta(r, konteks);
+    isiMeta(meta, r, konteks);
     if (meta.textContent) info.append(meta);
+
+    /* Bintang yang bisa langsung diketuk, tanpa membuka dialog. Menilai itu
+       hal yang paling sering dilakukan setelah selesai, jadi tidak pantas
+       dikubur di balik satu ketukan tambahan. */
+    if (konteks === "riwayat" && r.status === "selesai") {
+      const baris = document.createElement("div");
+      baris.className = "bintang-baris";
+      for (let n = 1; n <= 5; n++) {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "bintang-mini" + (r.nilai && n <= r.nilai ? " aktif" : "");
+        b.textContent = "★";
+        b.setAttribute("aria-label", `Beri ${n} bintang untuk ${r.judul}` +
+          (ARTI_NILAI[n] ? ` — ${ARTI_NILAI[n]}` : ""));
+        b.title = ARTI_NILAI[n];
+        b.addEventListener("click", () => {
+          /* Ketuk bintang yang sama untuk mengosongkan nilainya. */
+          perbarui(r.id, { nilai: r.nilai === n ? null : n });
+        });
+        baris.append(b);
+      }
+      info.append(baris);
+    }
 
     if (r.catatan) {
       const catatan = document.createElement("span");
@@ -697,37 +847,58 @@ function gambarItem(wadah, rows, konteks, nodeKosong) {
       return b;
     };
 
+    /* Kartunya memudar ke samping saat berpindah daftar. Penulisan datanya
+       dimulai LEBIH DULU dan tidak menunggu animasi apa pun -- daftar akan
+       digambar ulang dari data begitu simpanan selesai, terjadi atau tidak
+       animasinya. */
+    const pindah = (status) => {
+      li.classList.add("pergi");
+      pindahStatus(r, status);
+    };
+
     if (konteks === "sedang") {
-      aksi.append(tombol("Selesai", "Tandai selesai:", () => pindahStatus(r, "selesai"), "utama"));
-      aksi.append(tombol("Tinggalkan", "Tandai ditinggalkan:", () => pindahStatus(r, "ditinggalkan")));
+      aksi.append(tombol("Selesai", "Tandai selesai:", () => pindah("selesai"), "utama"));
+      aksi.append(tombol("Tinggalkan", "Tandai ditinggalkan:", () => pindah("ditinggalkan")));
     } else if (konteks === "antre") {
-      aksi.append(tombol("Mulai", "Mulai:", () => pindahStatus(r, "sedang"), "utama"));
+      aksi.append(tombol("Mulai", "Mulai:", () => pindah("sedang"), "utama"));
     }
     aksi.append(tombol("Ubah", "Ubah:", () => bukaDialog(r)));
 
-    li.append(info, aksi);
+    li.append(punggung, info, aksi);
     wadah.append(li);
   });
 }
 
-function teksMeta(r, konteks) {
+/* Meta ditulis sebagai elemen, bukan satu untai teks, supaya penanda mangkrak
+   bisa ditegaskan sendiri tanpa memisahkannya dari kalimatnya. */
+function isiMeta(node, r, konteks) {
+  node.textContent = "";
   const bagian = [];
 
   if (konteks === "sedang") {
     const umur = umurHari(r.diubah_pada);
     bagian.push(r.mulai_pada ? `mulai ${tanggalPendek(r.mulai_pada)}` : "belum dimulai");
-    /* Ambang 21 hari: cukup lama untuk berarti mandek, tidak segera menuduh
+    /* Ambang 21 hari: cukup lama untuk berarti mandek, tidak langsung menuduh
        orang yang cuma sedang sibuk seminggu dua minggu. */
-    if (umur >= 21) bagian.push(`diam ${umur} hari`);
+    if (umur >= 21) bagian.push({ teks: `diam ${umur} hari`, tegas: true });
   } else if (konteks === "antre") {
-    bagian.push("di antrean");
+    const umur = umurHari(r.dibuat_pada);
+    bagian.push("belum dimulai");
+    if (umur >= 30) bagian.push({ teks: `antre ${umur} hari`, tegas: true });
   } else {
     bagian.push(STATUS[r.status].toLowerCase());
     if (r.selesai_pada) bagian.push(tanggalPendek(r.selesai_pada));
-    if (r.nilai) bagian.push("★".repeat(r.nilai));
+    if (r.nilai) bagian.push(ARTI_NILAI[r.nilai]);
   }
 
-  return bagian.join(" · ");
+  bagian.forEach((b, i) => {
+    if (i) node.append(document.createTextNode(" · "));
+    if (typeof b === "string") { node.append(document.createTextNode(b)); return; }
+    const span = document.createElement("span");
+    span.className = "it-mandek";
+    span.textContent = b.teks;
+    node.append(span);
+  });
 }
 
 /* Data karangan untuk mode demo. Judul sengaja dibuat generik supaya tidak

@@ -30,7 +30,7 @@ jurnal/
 ├── index.html    Halaman masuk — juga berfungsi sebagai halaman perkenalan
 ├── app.html      Aplikasi: tab Sekarang, Riwayat, Tren + dialog ubah
 ├── style.css     Semua styling, mobile-first, dipakai kedua halaman
-├── bersama.js    Klien Supabase, tema, pembantu yang dipakai kedua halaman
+├── bersama.js    Klien Supabase, tema, siluet jenis, pembantu kedua halaman
 ├── login.js      Masuk, alihkan ke app.html
 ├── app.js        Catatan, status, hitungan, grafik
 ├── config.js     Alamat + kunci publik Supabase
@@ -45,7 +45,13 @@ jurnal/
 
 **Tidak ada API judul otomatis.** Ambil judul dan sampul dari TMDb atau Open Library memang enak, tapi menambah dependensi jaringan, mode gagal baru, dan sebagian butuh kunci API yang tidak boleh masuk repo publik. Ditambahkan kalau mengetik judul terbukti menjengkelkan berulang kali — dan kalau iya, Open Library yang pertama dicoba, karena tidak butuh kunci sama sekali.
 
-**Tidak ada warna per jenis.** Empat warna kategori berarti empat pasang jarak warna baru yang belum pernah diuji keterbacaannya. Jenis ditandai label teks, dan semua batang grafik sewarna — yang membawa informasi adalah panjangnya, bukan ronanya.
+**Jenis dibedakan lewat bentuk, bukan warna.** Empat warna kategori berarti empat pasang jarak warna baru yang belum pernah diuji keterbacaannya. Sebagai gantinya tiap jenis punya **siluet** sendiri — film, serial, buku, game — yang muncul di punggung kartu, pemilih jenis, chip saringan, label grafik, dan dekorasi halaman masuk. Bentuk terbaca oleh siapa pun termasuk yang buta warna, dan semua batang grafik tetap sewarna: yang membawa informasi adalah panjangnya.
+
+Siluetnya ditulis **sekali** sebagai sprite di `bersama.js`, lalu disuntikkan ke kedua halaman lewat `pasangSprite()`. Bukan disalin ke dua berkas HTML — salinan yang harus disamakan manual pasti berbeda diam-diam suatu hari. Elemen `<use>` di HTML menunjuk simbol itu, dan `ikon(jenis)` membuat elemen yang sama untuk daftar yang dirender JavaScript.
+
+**Tata letaknya sengaja tidak meniru aplikasi keuangan.** Lebar 1000px dengan dua kolom di tab Sekarang (formulir menempel di kiri, daftar berjalan di kanan), bukan satu kolom 660px. Tab Riwayat dan Tren tetap sempit karena keduanya dibaca berurutan dari atas ke bawah.
+
+**Bintang bisa diketuk langsung di daftar Riwayat.** Menilai adalah hal yang paling sering dilakukan setelah selesai, jadi tidak pantas dikubur di balik satu ketukan tambahan ke dialog. Tiap bintang juga punya artinya (`Bagus`, `Bagus banget`, …) — deretan bintang tanpa keterangan menuntut orang menghitung dan menebak maknanya sendiri.
 
 **`diubah_pada` diurus trigger database, bukan JavaScript.** Kalau diisi dari aplikasi, cepat atau lambat ada satu jalur update yang lupa mengisinya dan urutan daftar jadi salah tanpa ada yang sadar.
 
@@ -87,6 +93,7 @@ Semuanya lahir dari bug sungguhan di proyek-proyek sebelumnya, bukan dari teori.
 | Animasi tidak boleh jadi satu-satunya jalan sebuah nilai muncul | `requestAnimationFrame` tidak berjalan saat halaman tidak digambar (tab latar). Tiap angka dan batang punya pengaman `setTimeout`. Sudah jadi bug dua kali. |
 | Tanggal pakai perhitungan lokal, bukan `toISOString()` | WIB itu UTC+7 — catatan dini hari akan tercatat tanggal kemarin. |
 | Semua `input`/`select` minimal 16px | Di bawah itu iOS memperbesar layar sendiri saat field disentuh. |
+| Tombol aksi di daftar minimal 44px tinggi | `.tombol.kecil` memakai `min-height: 0`. Terukur: tanpa penegasan ulang, tombol Selesai/Tinggalkan/Ubah cuma 29px — dan justru itu yang paling sering diketuk dari HP. |
 | Blok penjaga halaman tetap di **paling akhir** `app.js` | Di tengah berkas → `ReferenceError` karena TDZ, dan itu **lolos dari `node --check`**. |
 | Batang horizontal pakai HTML biasa, bukan SVG yang diregangkan | Teks pernah melar 5,86× ke samping. SVG hanya untuk kolom bulanan, dengan koordinat piksel sungguhan. |
 

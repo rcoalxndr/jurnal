@@ -1,4 +1,8 @@
-import { db, el, tampilkanPesan, pasangTombolTema, selesaiMemuat } from "./bersama.js?v=1";
+import { db, el, tampilkanPesan, pasangTombolTema, selesaiMemuat, pasangSprite } from "./bersama.js?v=2";
+
+/* Siluet disuntikkan sebelum apa pun digambar, supaya <use> di HTML punya
+   simbol untuk ditunjuk sejak frame pertama. */
+pasangSprite();
 
 pasangTombolTema();
 

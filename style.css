@@ -98,7 +98,14 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-.wrap { max-width: 660px; margin: 0 auto; padding: 0 18px; }
+/* 1000px, bukan 660px seperti aplikasi keuangan. Aplikasi ini punya empat
+   jenis yang perlu terlihat berdampingan, dan tab Sekarang dibagi dua kolom
+   di layar lebar. */
+.wrap { max-width: 1000px; margin: 0 auto; padding: 0 18px; }
+
+/* Riwayat dan Tren tetap satu kolom sempit -- keduanya dibaca berurutan dari
+   atas ke bawah, dan baris teks selebar 1000px melelahkan mata. */
+.sempit { max-width: 680px; margin-inline: auto; width: 100%; }
 
 h1, h2 { margin: 0; text-wrap: balance; }
 h1 { font-size: clamp(30px, 7vw, 42px); font-weight: 700; letter-spacing: -0.025em; line-height: 1.12; }
@@ -156,20 +163,7 @@ a { color: var(--accent-ink); text-underline-offset: 3px; }
   pointer-events: none;
   overflow: hidden;
 }
-.dekor svg {
-  position: absolute;
-  right: -14%;
-  top: 50%;
-  transform: translateY(-50%);
-  width: min(560px, 92vw);
-  height: auto;
-}
-.dekor .d-cincin  { animation: apung 11s ease-in-out infinite; transform-origin: 326px 96px; }
-.dekor .d-batang  { animation: apung 13s ease-in-out infinite reverse; }
-.dekor .d-alir    { animation: alirGaris 3.4s linear infinite; }
-.dekor .d-titik-1 { animation: apung 8s  ease-in-out infinite; }
-.dekor .d-titik-2 { animation: apung 10s ease-in-out infinite reverse; }
-.dekor .d-titik-3 { animation: apung 9s  ease-in-out infinite; }
+.dekor .d-alir { animation: alirGaris 3.4s linear infinite; }
 
 .masuk-grid {
   position: relative;
@@ -496,7 +490,9 @@ input::placeholder { color: var(--ink-faint); }
   animation: masukHalus 0.4s var(--ease) both;
   animation-delay: var(--tunda, 0ms);
 }
-.batang-kepala { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 14px; }
+.batang-kepala { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 14px; }
+.batang-label-kiri { display: inline-flex; align-items: center; gap: 8px; min-width: 0; color: var(--ink); }
+.batang-label-kiri .ikon { color: var(--ink-faint); }
 .batang-nilai {
   font-family: var(--mono); font-size: 12px; color: var(--ink-dim);
   font-variant-numeric: tabular-nums; white-space: nowrap;
@@ -570,7 +566,11 @@ input::placeholder { color: var(--ink-faint); }
 .it-catatan { font-size: 13px; color: var(--ink-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .it-aksi { display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto; }
-.it-aksi .tombol { font-size: 12.5px; padding: 6px 10px; }
+
+/* Tinggi 44px, bukan sekadar mengecilkan .tombol.kecil yang min-height-nya 0.
+   Terukur: tanpa ini tombolnya cuma 29px -- di bawah ambang target sentuh,
+   padahal justru inilah tombol yang paling sering diketuk dari HP. */
+.it-aksi .tombol { font-size: 12.5px; padding: 9px 13px; min-height: 44px; }
 
 /* ============ DIALOG UBAH ============ */
 
@@ -646,6 +646,274 @@ input::placeholder { color: var(--ink-faint); }
   .ringkas-tiga { grid-template-columns: 1fr; gap: 10px; }
   .tab { padding: 10px 11px 11px; font-size: 13.5px; }
   .tab::after { left: 9px; right: 9px; }
+}
+
+/* ================================================================
+   IDENTITAS JENIS — siluet, bukan warna
+   ================================================================
+   Keempat jenis dibedakan lewat BENTUK. Empat warna kategori berarti empat
+   jarak warna baru yang belum pernah diukur, sementara siluet terbaca oleh
+   siapa pun termasuk yang buta warna, dan tetap jelas dalam ukuran kecil. */
+
+.ikon { width: 20px; height: 20px; fill: currentColor; flex: none; display: block; }
+
+.ikon-kosong { width: 44px; height: 44px; fill: var(--line); margin-bottom: 2px; }
+
+/* ============ RAK (hero tab Sekarang) ============ */
+
+.rak-kartu { gap: 12px; }
+.rak-utama { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.rak-utama .hero { line-height: 1; }
+
+.rak {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 8px; flex: 1 1 240px; min-width: 0;
+}
+.rak-slot {
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  padding: 9px 2px 7px;
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
+  background: var(--paper);
+  transition: border-color 0.2s var(--ease), opacity 0.2s var(--ease);
+}
+.rak-slot b { font-family: var(--mono); font-size: 15px; font-weight: 500; }
+.rak-slot span { font-size: 10.5px; color: var(--ink-dim); }
+.rak-ikon { width: 24px; height: 24px; color: var(--ink-faint); margin-bottom: 2px; }
+
+/* Jenis yang belum ada isinya bulan ini tampil redup. Bentuk raknya sendiri
+   jadi bercerita: sebulan penuh film, atau sebulan tanpa buku sama sekali. */
+.rak-slot.rak-kosong { opacity: 0.42; }
+.rak-slot.terisi { border-color: var(--accent); }
+.rak-slot.terisi .rak-ikon { color: var(--accent-ink); }
+
+/* ============ TATA LETAK DUA KOLOM ============ */
+
+.sekarang-grid { display: grid; grid-template-columns: 1fr; gap: 14px; align-items: start; }
+.kolom-kiri, .kolom-kanan { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+
+@media (min-width: 900px) {
+  .sekarang-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); }
+  .rak-kartu { grid-column: 1 / -1; }
+  /* Kolom kiri (formulir) menempel saat menggulir daftar panjang di kanan --
+     mencatat judul baru tidak boleh butuh scroll ke atas dulu. */
+  .kolom-kiri { position: sticky; top: 108px; }
+}
+
+/* ============ PEMILIH JENIS ============ */
+
+.jenis-pilih { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.jenis-tombol {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  font-family: var(--sans); font-size: 11.5px; font-weight: 600;
+  color: var(--ink-dim);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 2px 8px;
+  min-height: 62px;
+  cursor: pointer;
+  transition: background 0.2s var(--ease), color 0.2s var(--ease),
+              border-color 0.2s var(--ease), transform 0.12s var(--ease);
+}
+.jenis-tombol .ikon { width: 22px; height: 22px; }
+.jenis-tombol:hover { border-color: var(--ink-faint); color: var(--ink); }
+.jenis-tombol:active { transform: scale(0.96); }
+.jenis-tombol.aktif { background: var(--accent); border-color: var(--accent); color: var(--paper); }
+
+/* Sentuhan kecil: ikon jenis yang baru dipilih memantul sekali. */
+.jenis-tombol.aktif .ikon { animation: pantul 0.34s var(--ease); }
+@keyframes pantul {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(1.28) rotate(-6deg); }
+  100% { transform: scale(1); }
+}
+
+/* ============ CHIP SARINGAN ============ */
+
+.saring-chip { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--sans); font-size: 13px; font-weight: 600;
+  color: var(--ink-dim);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 13px;
+  min-height: 40px;
+  cursor: pointer;
+  transition: background 0.18s var(--ease), color 0.18s var(--ease),
+              border-color 0.18s var(--ease), transform 0.12s var(--ease);
+}
+.chip .ikon { width: 16px; height: 16px; }
+.chip:hover { border-color: var(--ink-faint); color: var(--ink); }
+.chip:active { transform: scale(0.96); }
+.chip.aktif { background: var(--accent); border-color: var(--accent); color: var(--paper); }
+
+/* ============ KARTU JUDUL ============ */
+
+/* Tiap judul dapat punggung di kiri berisi siluet jenisnya -- lebih mirip
+   benda di rak daripada baris di buku kas. Ini pembeda visual paling kentara
+   dari aplikasi keuangan. */
+.item-list li { position: relative; padding-left: 46px; }
+.it-punggung {
+  position: absolute; left: 2px; top: 50%; transform: translateY(-50%);
+  width: 34px; height: 34px;
+  display: grid; place-items: center;
+  border-radius: 9px;
+  background: var(--accent-soft);
+  color: var(--accent-ink);
+}
+.it-punggung .ikon { width: 19px; height: 19px; }
+
+.it-jenis {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+  flex: none;
+}
+
+/* Peringatan mangkrak. Warnanya penegas, bukan pembawa pesan -- teksnya
+   tetap menjelaskan sendiri kalau warnanya tidak terlihat. */
+.it-mandek { color: var(--keluar); font-weight: 500; }
+
+/* Bintang yang bisa langsung diketuk di daftar riwayat, tanpa buka dialog. */
+.bintang-baris { display: flex; gap: 1px; margin-top: 2px; }
+.bintang-mini {
+  font-size: 15px; line-height: 1;
+  background: transparent; border: none;
+  color: var(--line);
+  padding: 2px 1px; cursor: pointer; border-radius: 4px;
+  transition: color 0.14s var(--ease), transform 0.1s var(--ease);
+}
+.bintang-mini:hover { color: var(--ink-faint); transform: scale(1.14); }
+.bintang-mini.aktif { color: var(--keluar); }
+
+/* Judul yang baru ditandai selesai memudar sebelum pindah daftar. Murni
+   hiasan -- datanya sudah tersimpan sebelum animasi mulai, dan daftarnya
+   digambar ulang dari data apa pun yang terjadi dengan animasinya. */
+.item-list li.pergi { animation: pergi 0.3s var(--ease) forwards; pointer-events: none; }
+@keyframes pergi {
+  to { opacity: 0; transform: translateX(14px) scale(0.97); }
+}
+
+/* ============ LABEL BINTANG DI DIALOG ============ */
+
+.bintang-label { font-size: 13px; color: var(--ink-dim); min-height: 19px; font-style: italic; }
+
+/* ============ HALAMAN MASUK: PITA + SILUET ============ */
+
+/* Pita seluloid yang bergeser pelan di belakang siluet. Dibuat dari
+   repeating-linear-gradient, bukan gambar -- nol permintaan jaringan. */
+.pita {
+  position: absolute;
+  left: -10%; right: -10%;
+  top: 62%;
+  height: 74px;
+  transform: rotate(-7deg);
+  overflow: hidden;
+  opacity: 0.5;
+  mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+}
+.pita-jalur {
+  width: 200%; height: 100%;
+  background:
+    repeating-linear-gradient(90deg, var(--sunken) 0 34px, transparent 34px 44px),
+    linear-gradient(var(--line-soft), var(--line-soft));
+  background-size: 44px 14px, 100% 100%;
+  background-position: 0 8px, 0 0;
+  background-repeat: repeat-x, no-repeat;
+  border-block: 1px solid var(--line);
+  animation: geserPita 14s linear infinite;
+}
+@keyframes geserPita { to { transform: translateX(-44px); } }
+
+.dekor-siluet {
+  position: absolute;
+  right: -14%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: min(560px, 92vw);
+  height: auto;
+  fill: var(--accent);
+}
+.dekor-siluet .s-film   { opacity: .17; animation: apung 11s ease-in-out infinite; }
+.dekor-siluet .s-game   { opacity: .15; animation: apung 13s ease-in-out infinite reverse; }
+.dekor-siluet .s-buku   { opacity: .16; animation: apung 9.5s ease-in-out infinite; animation-delay: -3s; }
+.dekor-siluet .s-serial { opacity: .13; animation: apung 15s ease-in-out infinite reverse; animation-delay: -6s; }
+
+.dekor-siluet .s-bintang {
+  fill: var(--keluar);
+  font-size: 20px;
+  opacity: .3;
+  animation: kelip 4.6s ease-in-out infinite;
+}
+.dekor-siluet .b2 { animation-delay: -1.6s; font-size: 15px; }
+.dekor-siluet .b3 { animation-delay: -3.1s; font-size: 25px; }
+
+@keyframes kelip {
+  0%, 100% { opacity: .12; }
+  50%      { opacity: .42; }
+}
+
+/* ============ ALUR TIGA STATUS ============ */
+
+/* Inti aplikasinya dalam satu gambar: catatan di sini punya siklus hidup.
+   Titik berjalan menyusuri ketiga tahap, berulang. */
+.alur {
+  list-style: none; margin: 4px 0 0; padding: 0;
+  position: relative;
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  animation: naik 0.6s var(--ease) 0.08s both;
+}
+.alur::before {
+  content: "";
+  position: absolute;
+  left: 8%; right: 8%; top: 6px;
+  height: 1px;
+  background: var(--line);
+}
+.alur li { display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; }
+.alur-titik {
+  width: 13px; height: 13px; border-radius: 50%;
+  background: var(--paper);
+  box-shadow: inset 0 0 0 2px var(--line);
+  position: relative; z-index: 1;
+}
+.alur li strong { font-size: 13.5px; }
+.alur-ket { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); }
+
+.alur-pelari {
+  position: absolute;
+  top: 1px; left: 16.6%;
+  width: 11px; height: 11px;
+  margin-left: -5.5px;
+  border-radius: 50%;
+  background: var(--keluar);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--keluar) 22%, transparent);
+  animation: lariAlur 6s var(--ease) infinite;
+}
+@keyframes lariAlur {
+  0%, 12%   { left: 16.6%; }
+  33%, 45%  { left: 50%; }
+  66%, 88%  { left: 83.4%; }
+  100%      { left: 16.6%; }
+}
+
+@media (max-width: 400px) {
+  .rak { gap: 5px; }
+  .rak-slot { padding: 7px 1px 6px; }
+  .rak-slot span { font-size: 9.5px; }
+  .jenis-tombol { font-size: 10.5px; padding: 9px 1px 7px; min-height: 58px; }
+  .chip { padding: 7px 11px; font-size: 12.5px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
