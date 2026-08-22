@@ -49,6 +49,10 @@ jurnal/
 
 Siluetnya ditulis **sekali** sebagai sprite di `bersama.js`, lalu disuntikkan ke kedua halaman lewat `pasangSprite()`. Bukan disalin ke dua berkas HTML — salinan yang harus disamakan manual pasti berbeda diam-diam suatu hari. Elemen `<use>` di HTML menunjuk simbol itu, dan `ikon(jenis)` membuat elemen yang sama untuk daftar yang dirender JavaScript.
 
+**Latar halaman aplikasi ikut hidup, tapi dijaga ketat.** Siluet keempat jenis melayang di `position: fixed` dengan `z-index: -1` dan `pointer-events: none`, jadi selalu di bawah isi dan tidak pernah mencuri ketukan. Opasitasnya 0,04–0,055 (0,035 di layar sempit) dan pitanya dimatikan di bawah 700px — di layar HP hampir seluruh lebar tertutup kartu, dan sisa celahnya terlalu sempit untuk memuat bentuk yang terbaca.
+
+Angkanya bukan selera: teks yang duduk langsung di atas latar diukur ulang setelah hiasannya ditambahkan. Kaki halaman turun dari 3,17:1 ke 2,90:1 — sudah gagal bahkan sebelum ada hiasan — jadi warnanya dinaikkan ke `--ink-dim` dan sekarang 5,2:1 pada kasus terburuk di kedua mode. **Kalau opasitas latar dinaikkan, ukur ulang.**
+
 **Tata letaknya sengaja tidak meniru aplikasi keuangan.** Lebar 1000px dengan dua kolom di tab Sekarang (formulir menempel di kiri, daftar berjalan di kanan), bukan satu kolom 660px. Tab Riwayat dan Tren tetap sempit karena keduanya dibaca berurutan dari atas ke bawah.
 
 **Bintang bisa diketuk langsung di daftar Riwayat.** Menilai adalah hal yang paling sering dilakukan setelah selesai, jadi tidak pantas dikubur di balik satu ketukan tambahan ke dialog. Tiap bintang juga punya artinya (`Bagus`, `Bagus banget`, …) — deretan bintang tanpa keterangan menuntut orang menghitung dan menebak maknanya sendiri.

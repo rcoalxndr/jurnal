@@ -1,7 +1,7 @@
 import {
   db, el, tampilkanPesan, pasangTombolTema, selesaiMemuat, geraknyaDikurangi,
   pasangSprite, ikon,
-} from "./bersama.js?v=2";
+} from "./bersama.js?v=3";
 
 /* Siluet disuntikkan sebelum apa pun digambar, supaya <use> di HTML punya
    simbol untuk ditunjuk sejak frame pertama. */

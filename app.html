@@ -21,7 +21,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Karla:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="style.css?v=2">
+<link rel="stylesheet" href="style.css?v=3">
 <script>
   try {
     var t = localStorage.getItem('theme');
@@ -30,6 +30,28 @@
 </script>
 </head>
 <body>
+
+<!-- Latar hidup: siluet keempat jenis melayang jauh di belakang, dengan pita
+     seluloid yang bergeser pelan. Ditaruh di z-index -1 supaya berada di bawah
+     seluruh isi, dan pointer-events dimatikan supaya tidak pernah mencuri
+     ketukan.
+
+     Opasitasnya sangat rendah dengan sengaja. Ini aplikasi data -- kartunya
+     buram, jadi hiasan ini hanya terlihat di sela dan pinggiran, dan tidak
+     boleh sampai mengganggu keterbacaan angka. -->
+<div class="latar-dekor" aria-hidden="true">
+  <div class="latar-pita"><div class="latar-pita-jalur"></div></div>
+  <svg class="latar-svg" viewBox="0 0 1200 900" preserveAspectRatio="xMidYMid slice">
+    <g class="l-film">   <use href="#ik-film"   x="34"   y="86"  width="150" height="150"/></g>
+    <g class="l-buku">   <use href="#ik-buku"   x="1010" y="150" width="132" height="132"/></g>
+    <g class="l-game">   <use href="#ik-game"   x="86"   y="576" width="146" height="146"/></g>
+    <g class="l-serial"> <use href="#ik-serial" x="1024" y="618" width="120" height="120"/></g>
+    <text class="l-bintang lb1" x="252"  y="404">★</text>
+    <text class="l-bintang lb2" x="962"  y="452">★</text>
+    <text class="l-bintang lb3" x="150"  y="332">★</text>
+    <text class="l-bintang lb4" x="1108" y="386">★</text>
+  </svg>
+</div>
 
 <header class="topbar">
   <div class="wrap topbar-isi">
@@ -364,6 +386,6 @@
   <a href="https://github.com/rcoalxndr/jurnal">Kode sumber</a>
 </footer>
 
-<script type="module" src="app.js?v=2"></script>
+<script type="module" src="app.js?v=3"></script>
 </body>
 </html>

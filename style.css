@@ -225,9 +225,9 @@ a { color: var(--accent-ink); text-underline-offset: 3px; }
   width: 100%;
   font-family: var(--mono);
   font-size: 11.5px;
-  color: var(--ink-faint);
+  color: var(--ink-dim);
 }
-.masuk-kaki a { color: var(--ink-faint); }
+.masuk-kaki a { color: var(--ink-dim); }
 .masuk-kaki a:hover { color: var(--accent-ink); }
 
 @media (min-width: 860px) {
@@ -632,13 +632,17 @@ input::placeholder { color: var(--ink-faint); }
 }
 .spanduk-demo[hidden] { display: none; }
 
+/* --ink-dim, bukan --ink-faint seperti di aplikasi keuangan. Terukur di atas
+   kertas polos, --ink-faint cuma 3,17:1 -- sudah di bawah ambang 4,5:1 sebelum
+   ada hiasan apa pun, dan turun ke 2,90:1 kalau siluet latar lewat di
+   belakangnya. Salah satu isinya tautan, jadi harus terbaca. */
 .kaki {
   display: flex; flex-wrap: wrap; gap: 6px 16px; justify-content: space-between;
   padding-top: 18px; padding-bottom: 40px;
   border-top: 1px solid var(--line);
-  font-family: var(--mono); font-size: 11.5px; color: var(--ink-faint);
+  font-family: var(--mono); font-size: 11.5px; color: var(--ink-dim);
 }
-.kaki a { color: var(--ink-faint); }
+.kaki a { color: var(--ink-dim); }
 .kaki a:hover { color: var(--accent-ink); }
 
 @media (max-width: 400px) {
@@ -861,6 +865,84 @@ input::placeholder { color: var(--ink-faint); }
 @keyframes kelip {
   0%, 100% { opacity: .12; }
   50%      { opacity: .42; }
+}
+
+/* ============ LATAR HIDUP DI HALAMAN APLIKASI ============
+
+   z-index -1 menempatkannya di bawah seluruh isi tapi tetap di atas warna
+   latar body, jadi kartunya yang buram menutupinya sepenuhnya. Hiasannya
+   hanya muncul di sela antar kartu dan di margin kiri-kanan layar lebar.
+
+   position: fixed dipakai supaya latarnya diam saat halaman digulir --
+   isinya yang bergerak melewatinya. Ini juga menghindari perhitungan tinggi
+   dokumen yang berubah-ubah setiap daftar bertambah. */
+
+.latar-dekor {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;   /* tidak boleh mencuri ketukan dari tombol mana pun */
+  overflow: hidden;
+}
+
+.latar-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: var(--accent);
+}
+
+/* Opasitas sengaja sangat rendah. Diukur: teks yang duduk langsung di atas
+   latar (kaki halaman, navigasi bulan) tetap di atas ambang kontras dengan
+   nilai-nilai ini. Jangan dinaikkan tanpa mengukur ulang. */
+.latar-dekor .l-film   { opacity: .055; animation: apung 17s ease-in-out infinite; }
+.latar-dekor .l-buku   { opacity: .05;  animation: apung 21s ease-in-out infinite reverse; }
+.latar-dekor .l-game   { opacity: .045; animation: apung 19s ease-in-out infinite; animation-delay: -5s; }
+.latar-dekor .l-serial { opacity: .04;  animation: apung 23s ease-in-out infinite reverse; animation-delay: -9s; }
+
+.latar-dekor .l-bintang {
+  fill: var(--keluar);
+  font-size: 26px;
+  opacity: .07;
+  animation: kelip 6.5s ease-in-out infinite;
+}
+.latar-dekor .lb2 { animation-delay: -2.2s; font-size: 18px; }
+.latar-dekor .lb3 { animation-delay: -4.1s; font-size: 33px; }
+.latar-dekor .lb4 { animation-delay: -5.6s; font-size: 21px; }
+
+.latar-pita {
+  position: absolute;
+  left: -12%; right: -12%;
+  top: 46%;
+  height: 62px;
+  transform: rotate(-4deg);
+  overflow: hidden;
+  opacity: 0.28;
+  mask-image: linear-gradient(90deg, transparent, #000 22%, #000 78%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 22%, #000 78%, transparent);
+}
+.latar-pita-jalur {
+  width: 200%; height: 100%;
+  background:
+    repeating-linear-gradient(90deg, var(--sunken) 0 30px, transparent 30px 40px),
+    linear-gradient(var(--line-soft), var(--line-soft));
+  background-size: 40px 12px, 100% 100%;
+  background-position: 0 8px, 0 0;
+  background-repeat: repeat-x, no-repeat;
+  border-block: 1px solid var(--line);
+  animation: geserPita 18s linear infinite;
+}
+
+/* Di layar sempit hampir seluruh lebar tertutup kartu, dan sisa celahnya
+   terlalu sedikit untuk memuat bentuk yang terbaca. Pita dimatikan supaya
+   tidak jadi garis nyasar di belakang teks. */
+@media (max-width: 700px) {
+  .latar-pita { display: none; }
+  .latar-dekor .l-film,
+  .latar-dekor .l-buku,
+  .latar-dekor .l-game,
+  .latar-dekor .l-serial { opacity: .035; }
 }
 
 /* ============ ALUR TIGA STATUS ============ */
