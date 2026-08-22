@@ -90,6 +90,7 @@ Semuanya lahir dari bug sungguhan di proyek-proyek sebelumnya, bukan dari teori.
 | Aturan | Kenapa |
 |---|---|
 | Naikkan `?v=N` di `style.css`, `app.js`, `login.js`, dan di dalam `import ... from "./bersama.js?v=N"` **setiap kali** JS/CSS diubah | Tanpa itu pengunjung lama dapat JS lama + HTML baru, dan aplikasinya rusak. **Tidak pernah terlihat di localhost.** |
+| Jangan memeriksa alamat `?v=N` yang baru **sebelum** deploy-nya mendarat | `?v=N` hanya mematahkan cache selama N-nya berubah. Meminta kunci baru saat server masih menyajikan isi lama akan menyimpan isi lama itu di bawah kunci baru — dan cache-nya bertahan sampai kedaluwarsa. Terjadi sungguhan saat memverifikasi rilis ini. Tunggu deploy selesai dulu, baru periksa. |
 | Animasi tidak boleh jadi satu-satunya jalan sebuah nilai muncul | `requestAnimationFrame` tidak berjalan saat halaman tidak digambar (tab latar). Tiap angka dan batang punya pengaman `setTimeout`. Sudah jadi bug dua kali. |
 | Tanggal pakai perhitungan lokal, bukan `toISOString()` | WIB itu UTC+7 — catatan dini hari akan tercatat tanggal kemarin. |
 | Semua `input`/`select` minimal 16px | Di bawah itu iOS memperbesar layar sendiri saat field disentuh. |
