@@ -94,3 +94,19 @@ Bagian ini **hanya ditambahi**, tidak pernah ditulis ulang. Entri terbaru di baw
 
 **Ditautkan dari portfolio**
 - Studi kasus lengkap sekarang ada di `portfolio\jurnal.html`.
+
+### 2026-08-23 (lanjutan) — Sapuan kontras menyeluruh (`v=5`)
+
+**Pemicu:** di portfolio ketahuan `--ink-faint` gagal ambang 4,5:1 di *setiap* kombinasi latar, di kedua tema (2,87–3,33:1). Palet aplikasi ini identik, jadi cacatnya ikut tersalin.
+
+**Yang disapu:** 14 deklarasi `color:` + 1 `fill:` diganti ke `--ink-dim`. Yang dibiarkan cuma `border-color`. `.grafik .sumbu` ikut diganti walau propertinya `fill`, karena isinya teks label sumbu yang dirender sebagai SVG.
+
+**Bintang kosong: diperbaiki lewat BENTUK, bukan warna.** Bintang yang belum terisi memakai `var(--line)` — terukur **1,42:1**, praktis tidak terlihat. Akibatnya bukan cuma soal ambang: orang tidak tahu ada lima bintang yang bisa diketuk.
+
+Sekarang bintang kosong memakai glyph **☆** dan bintang terisi **★**, dengan warna dinaikkan ke `--ink-dim`. Nilai 3 dari 5 terbaca **★★★☆☆** — kebedaannya bertahan walau warnanya tidak terlihat sama sekali. Ini prinsip yang sama dengan siluet jenis: **bedakan lewat bentuk, warna cuma penegas.**
+
+**Turunan warna data.** Token `--masuk`/`--keluar` **tidak diubah**. Ditambahkan `--keluar-teks` (untuk teks: `.it-mandek`, `.bintang.aktif`, `.bintang-mini.aktif`, nominal di tabel) dan `--isi-keluar` (untuk isian yang memuat teks putih: `.pesan.galat`, `.tombol.bahaya:hover`).
+
+**Hasil akhir:** disisir seluruh elemen teks yang tampil — tab Sekarang, Riwayat, Tren, **dialog ubah**, dan halaman masuk — di kedua tema: **nol kegagalan**.
+
+**Catatan alat:** jangan mengukur dengan mengganti `data-theme` saat panel browser tidak menggambar; hasilnya keadaan setengah-jadi. Muat ulang dengan skema warna OS. Dan `color-mix()` menghasilkan `color(srgb ...)` berskala 0–1, bukan 0–255.

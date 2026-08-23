@@ -1,7 +1,7 @@
 import {
   db, el, tampilkanPesan, pasangTombolTema, selesaiMemuat, geraknyaDikurangi,
   pasangSprite, ikon,
-} from "./bersama.js?v=4";
+} from "./bersama.js?v=5";
 
 /* Siluet disuntikkan sebelum apa pun digambar, supaya <use> di HTML punya
    simbol untuk ditunjuk sejak frame pertama. */
@@ -327,6 +327,9 @@ function catBintang() {
     const aktif = nilaiDiubah !== null && Number(b.dataset.nilai) <= nilaiDiubah;
     b.classList.toggle("aktif", aktif);
     b.setAttribute("aria-pressed", String(aktif));
+    /* Bentuk ikut berubah, bukan cuma warna: outline untuk kosong, padat
+       untuk terisi. Nilainya tetap terbaca kalau warnanya tidak terlihat. */
+    b.textContent = aktif ? "★" : "☆";
   });
   el("labelNilai").textContent = nilaiDiubah ? ARTI_NILAI[nilaiDiubah] : "Belum dinilai";
 }
@@ -822,8 +825,9 @@ function gambarItem(wadah, rows, konteks, nodeKosong) {
       for (let n = 1; n <= 5; n++) {
         const b = document.createElement("button");
         b.type = "button";
-        b.className = "bintang-mini" + (r.nilai && n <= r.nilai ? " aktif" : "");
-        b.textContent = "★";
+        const terisi = !!(r.nilai && n <= r.nilai);
+        b.className = "bintang-mini" + (terisi ? " aktif" : "");
+        b.textContent = terisi ? "★" : "☆";
         b.setAttribute("aria-label", `Beri ${n} bintang untuk ${r.judul}` +
           (ARTI_NILAI[n] ? ` — ${ARTI_NILAI[n]}` : ""));
         b.title = ARTI_NILAI[n];

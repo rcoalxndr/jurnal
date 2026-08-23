@@ -18,6 +18,11 @@
   --sunken:      #E4DCCB;
   --ink:         #26221C;
   --ink-dim:     #5F584D;
+  /* --ink-faint TIDAK BOLEH dipakai untuk teks maupun ikon bermakna.
+     Diukur di kedua tema, semua kombinasi latar: 2,87-3,33:1 -- gagal ambang
+     4,5:1 di semuanya. Token ini hanya untuk garis (border-color); teks
+     sekunder pakai --ink-dim (5,17-6,34:1). Cacat yang sama ditemukan di
+     tiga proyek sekaligus karena palet ini disalin antar proyek. */
   --ink-faint:   #8C8478;
   --line:        #D6CDBB;
   --line-soft:   #E2DACA;
@@ -28,6 +33,20 @@
   --masuk:       #2D6A9F;
   --keluar:      #C2621A;
   --grid:        #DDD5C4;
+
+  /* Turunan --keluar untuk dua pemakaian yang punya syarat berbeda dari
+     grafik. Token data --masuk/--keluar sendiri TIDAK diubah: keduanya sudah
+     diukur untuk uji buta warna, dan tugasnya membedakan arah uang.
+
+     --keluar-teks : --keluar sebagai TEKS di atas kartu cuma 3,75:1 di mode
+                     terang. Digelapkan sampai 4,57:1. Di mode gelap --keluar
+                     sudah 4,88:1, jadi nilainya sama.
+     --isi-*       : isian tombol/pesan yang memuat teks PUTIH. Putih di atas
+                     --keluar cuma 4,15:1 (terang) dan 3,29:1 (gelap). */
+  --keluar-teks: #A85416;
+  --isi-masuk:   #2D6A9F;
+  --isi-keluar:  #B25A18;
+
 
   --bayang:      0 1px 2px rgba(38, 34, 28, .05), 0 8px 24px -12px rgba(38, 34, 28, .16);
   --bayang-naik: 0 2px 4px rgba(38, 34, 28, .06), 0 14px 32px -14px rgba(38, 34, 28, .24);
@@ -54,6 +73,16 @@
     --masuk:       #4590CE;
     --keluar:      #CB7A36;
     --grid:        #302B23;
+
+  --keluar-teks: #CB7A36;
+  --isi-masuk:   #3878AB;
+  --isi-keluar:  #A05F2B;
+
+
+    --keluar-teks: #CB7A36;
+    --isi-masuk:   #3878AB;
+    --isi-keluar:  #A05F2B;
+
 
     --bayang:      0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px -12px rgba(0, 0, 0, .55);
     --bayang-naik: 0 2px 4px rgba(0, 0, 0, .34), 0 14px 32px -14px rgba(0, 0, 0, .66);
@@ -114,13 +143,13 @@ h2 { font-size: 16px; font-weight: 700; }
 .dim { color: var(--ink-dim); margin: 0; }
 .sub { font-size: 13.5px; margin-top: -8px; }
 .lede { font-size: 17px; color: var(--ink-dim); margin: 0; max-width: 46ch; }
-.catatan-kecil { font-size: 12.5px; color: var(--ink-faint); margin: 0; line-height: 1.5; }
+.catatan-kecil { font-size: 12.5px; color: var(--ink-dim); margin: 0; line-height: 1.5; }
 .k {
   font-family: var(--mono);
   font-size: 10.5px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--ink-faint);
+  color: var(--ink-dim);
 }
 
 a { color: var(--accent-ink); text-underline-offset: 3px; }
@@ -203,7 +232,7 @@ a { color: var(--accent-ink); text-underline-offset: 3px; }
 .poin li:nth-child(1) { animation-delay: 0.10s; }
 .poin li:nth-child(2) { animation-delay: 0.17s; }
 .poin li:nth-child(3) { animation-delay: 0.24s; }
-.poin-no { font-family: var(--mono); font-size: 11.5px; color: var(--keluar); padding-top: 3px; }
+.poin-no { font-family: var(--mono); font-size: 11.5px; color: var(--keluar-teks); padding-top: 3px; }
 .poin strong { display: block; font-size: 15px; }
 .poin span { font-size: 14px; color: var(--ink-dim); }
 
@@ -255,7 +284,7 @@ a { color: var(--accent-ink); text-underline-offset: 3px; }
   font-family: var(--sans);
   font-size: 14px;
   font-weight: 600;
-  color: var(--ink-faint);
+  color: var(--ink-dim);
   background: transparent;
   border: none;
   padding: 10px 14px 11px;
@@ -303,7 +332,7 @@ a { color: var(--accent-ink); text-underline-offset: 3px; }
 /* ---- Hero ---- */
 .hero-kartu { gap: 8px; }
 .hero-kepala { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
-.periode { font-family: var(--mono); font-size: 11.5px; color: var(--ink-faint); }
+.periode { font-family: var(--mono); font-size: 11.5px; color: var(--ink-dim); }
 
 /* Angka utama: satu per tampilan, minimal 48px, huruf sans yang sama dengan
    sisanya. Sengaja TIDAK memakai tabular-nums -- angka besar yang berdiri
@@ -315,7 +344,7 @@ a { color: var(--accent-ink); text-underline-offset: 3px; }
   letter-spacing: -0.03em;
   line-height: 1.05;
 }
-.hero.negatif { color: var(--keluar); }
+.hero.negatif { color: var(--keluar-teks); }
 .hero-catatan { font-size: 13px; }
 
 .arus {
@@ -337,11 +366,11 @@ a { color: var(--accent-ink); text-underline-offset: 3px; }
 
 .angka { font-family: var(--mono); font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums; }
 .angka.masuk { color: var(--masuk); }
-.angka.keluar { color: var(--keluar); }
-.angka.negatif { color: var(--keluar); }
+.angka.keluar { color: var(--keluar-teks); }
+.angka.negatif { color: var(--keluar-teks); }
 
 .tutup {
-  background: transparent; border: none; color: var(--ink-faint);
+  background: transparent; border: none; color: var(--ink-dim);
   font-size: 20px; line-height: 1; padding: 2px 7px; cursor: pointer; border-radius: 5px;
   transition: color 0.15s var(--ease), background 0.15s var(--ease);
 }
@@ -358,7 +387,7 @@ label > span {
   font-size: 10.5px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--ink-faint);
+  color: var(--ink-dim);
 }
 label em { font-style: normal; text-transform: none; letter-spacing: 0; }
 
@@ -380,7 +409,7 @@ input:focus, select:focus {
   box-shadow: 0 0 0 3px var(--accent-soft);
   outline: none;
 }
-input::placeholder { color: var(--ink-faint); }
+input::placeholder { color: var(--ink-dim); }
 
 #judul { font-size: 17px; }
 
@@ -460,7 +489,7 @@ input::placeholder { color: var(--ink-faint); }
   background: var(--accent-soft); color: var(--accent-ink);
   animation: masukHalus 0.25s var(--ease);
 }
-.pesan.galat { background: var(--keluar); color: #FFF; }
+.pesan.galat { background: var(--isi-keluar); color: #FFF; }
 .pesan[hidden] { display: none; }
 
 /* ============ NAVIGASI BULAN ============ */
@@ -477,7 +506,7 @@ input::placeholder { color: var(--ink-faint); }
 .grafik { width: 100%; }
 .grafik svg { display: block; max-width: 100%; overflow: visible; }
 .grafik .nilai { font-family: var(--mono); font-size: 11px; fill: var(--ink-dim); font-variant-numeric: tabular-nums; }
-.grafik .sumbu { font-family: var(--mono); font-size: 10.5px; fill: var(--ink-faint); }
+.grafik .sumbu { font-family: var(--mono); font-size: 10.5px; fill: var(--ink-dim); }
 .grafik .garis-grid { stroke: var(--grid); stroke-width: 1; }
 .grafik .batang { transition: opacity 0.15s var(--ease); }
 .grafik .batang:hover { opacity: 0.75; }
@@ -492,7 +521,7 @@ input::placeholder { color: var(--ink-faint); }
 }
 .batang-kepala { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 14px; }
 .batang-label-kiri { display: inline-flex; align-items: center; gap: 8px; min-width: 0; color: var(--ink); }
-.batang-label-kiri .ikon { color: var(--ink-faint); }
+.batang-label-kiri .ikon { color: var(--ink-dim); }
 .batang-nilai {
   font-family: var(--mono); font-size: 12px; color: var(--ink-dim);
   font-variant-numeric: tabular-nums; white-space: nowrap;
@@ -513,7 +542,7 @@ input::placeholder { color: var(--ink-faint); }
 .tabel th:first-child, .tabel td:first-child { text-align: left; }
 .tabel th {
   font-family: var(--mono); font-size: 10px; letter-spacing: 0.07em;
-  text-transform: uppercase; color: var(--ink-faint); font-weight: 500;
+  text-transform: uppercase; color: var(--ink-dim); font-weight: 500;
 }
 .tabel td { font-variant-numeric: tabular-nums; font-family: var(--mono); font-size: 12.5px; }
 .tabel td:first-child { font-family: var(--sans); font-size: 13.5px; }
@@ -521,8 +550,8 @@ input::placeholder { color: var(--ink-faint); }
 .tabel tbody tr { transition: background 0.15s var(--ease); }
 .tabel tbody tr:hover { background: var(--line-soft); }
 .tabel .t-masuk { color: var(--masuk); }
-.tabel .t-keluar { color: var(--keluar); }
-.tabel .t-negatif { color: var(--keluar); }
+.tabel .t-keluar { color: var(--keluar-teks); }
+.tabel .t-negatif { color: var(--keluar-teks); }
 
 /* ============ DAFTAR JUDUL ============
 
@@ -592,8 +621,8 @@ input::placeholder { color: var(--ink-faint); }
 .dialog-kepala h2 { font-size: 18px; }
 .dialog-aksi { display: flex; justify-content: space-between; gap: 10px; margin-top: 2px; }
 
-.tombol.bahaya { color: var(--keluar); border-color: var(--keluar); }
-.tombol.bahaya:hover { background: var(--keluar); border-color: var(--keluar); color: #FFF; }
+.tombol.bahaya { color: var(--keluar-teks); border-color: var(--keluar-teks); }
+.tombol.bahaya:hover { background: var(--isi-keluar); border-color: var(--keluar); color: #FFF; }
 
 /* Bintang: tombol tekan biasa, bukan input range. Nilai 1-5 itu pilihan
    diskret, dan menekan langsung ke angka yang dimaksud lebih cepat daripada
@@ -604,15 +633,19 @@ input::placeholder { color: var(--ink-faint); }
   line-height: 1;
   background: transparent;
   border: none;
-  color: var(--line);
+  /* Bintang kosong sebelumnya var(--line) -- terukur 1,42:1, praktis tidak
+     terlihat. Orang tidak tahu ada yang bisa diketuk. Sekarang --ink-dim,
+     dan yang membedakan kosong dari terisi adalah BENTUKNYA (outline vs
+     padat), bukan warnanya -- prinsip yang sama dengan siluet jenis. */
+  color: var(--ink-dim);
   padding: 5px 6px;
   cursor: pointer;
   border-radius: 6px;
   transition: color 0.15s var(--ease), transform 0.12s var(--ease);
 }
-.bintang:hover { color: var(--ink-faint); }
+.bintang:hover { color: var(--ink-dim); }
 .bintang:active { transform: scale(0.9); }
-.bintang.aktif { color: var(--keluar); }
+.bintang.aktif { color: var(--keluar-teks); }
 
 /* ============ KOSONG + KAKI ============ */
 
@@ -684,7 +717,7 @@ input::placeholder { color: var(--ink-faint); }
 }
 .rak-slot b { font-family: var(--mono); font-size: 15px; font-weight: 500; }
 .rak-slot span { font-size: 10.5px; color: var(--ink-dim); }
-.rak-ikon { width: 24px; height: 24px; color: var(--ink-faint); margin-bottom: 2px; }
+.rak-ikon { width: 24px; height: 24px; color: var(--ink-dim); margin-bottom: 2px; }
 
 /* Jenis yang belum ada isinya bulan ini tampil redup. Bentuk raknya sendiri
    jadi bercerita: sebulan penuh film, atau sebulan tanpa buku sama sekali. */
@@ -776,7 +809,7 @@ input::placeholder { color: var(--ink-faint); }
   font-size: 9.5px;
   letter-spacing: 0.09em;
   text-transform: uppercase;
-  color: var(--ink-faint);
+  color: var(--ink-dim);
   background: transparent;
   border-radius: 0;
   padding: 0;
@@ -785,19 +818,19 @@ input::placeholder { color: var(--ink-faint); }
 
 /* Peringatan mangkrak. Warnanya penegas, bukan pembawa pesan -- teksnya
    tetap menjelaskan sendiri kalau warnanya tidak terlihat. */
-.it-mandek { color: var(--keluar); font-weight: 500; }
+.it-mandek { color: var(--keluar-teks); font-weight: 500; }
 
 /* Bintang yang bisa langsung diketuk di daftar riwayat, tanpa buka dialog. */
 .bintang-baris { display: flex; gap: 1px; margin-top: 2px; }
 .bintang-mini {
   font-size: 15px; line-height: 1;
   background: transparent; border: none;
-  color: var(--line);
+  color: var(--ink-dim);
   padding: 2px 1px; cursor: pointer; border-radius: 4px;
   transition: color 0.14s var(--ease), transform 0.1s var(--ease);
 }
-.bintang-mini:hover { color: var(--ink-faint); transform: scale(1.14); }
-.bintang-mini.aktif { color: var(--keluar); }
+.bintang-mini:hover { color: var(--ink-dim); transform: scale(1.14); }
+.bintang-mini.aktif { color: var(--keluar-teks); }
 
 /* Judul yang baru ditandai selesai memudar sebelum pindah daftar. Murni
    hiasan -- datanya sudah tersimpan sebelum animasi mulai, dan daftarnya
@@ -971,7 +1004,7 @@ input::placeholder { color: var(--ink-faint); }
   position: relative; z-index: 1;
 }
 .alur li strong { font-size: 13.5px; }
-.alur-ket { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); }
+.alur-ket { font-family: var(--mono); font-size: 10px; color: var(--ink-dim); }
 
 .alur-pelari {
   position: absolute;
