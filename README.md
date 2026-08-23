@@ -61,6 +61,32 @@ Angkanya bukan selera: teks yang duduk langsung di atas latar diukur ulang setel
 
 **Dialog ubah sengaja bukan `method="dialog"`.** Dengan atribut itu, menekan Enter di kolom judul menutup dialog tanpa menyimpan — jebakan yang sama seperti tombol Enter di halaman masuk aplikasi keuangan yang dulu memicu "Masuk" padahal maksudnya "Daftar".
 
+## Unduh PDF
+
+Tombol **Unduh PDF** di tab Riwayat menyusun sebuah lembar laporan dari bulan yang sedang dipilih, lalu membuka dialog cetak. Pilih "Save as PDF" di sana. Di iPhone: Bagikan → Print → simpan ke Files.
+
+**Tidak memakai pustaka pembuat PDF.** jsPDF atau pdfmake berarti menarik ratusan kilobita dari CDN di **setiap** kunjungan — termasuk kunjungan yang tidak pernah mengunduh apa pun — dan menambah satu mode gagal baru kalau CDN-nya bermasalah. Jalur cetak bawaan browser sudah menghasilkan PDF yang ditata penuh oleh CSS, dengan biaya nol byte.
+
+Konsekuensinya jujur: bukan satu klik langsung jadi berkas, ada satu dialog di tengah.
+
+Lembarnya **dokumen terpisah** (`#cetak`), bukan tampilan aplikasi yang dipaksa muat di kertas. Isinya:
+
+| Bagian | Isi |
+|---|---|
+| Kepala | Judul, periode, waktu pembuatan, sumber |
+| Ringkasan | Selesai, ditinggalkan, rata-rata nilai, sedang jalan, antrean |
+| Yang berakhir | Judul, jenis, status, tanggal mulai & berakhir, nilai, catatan |
+| Sedang jalan | Termasuk berapa hari sejak terakhir disentuh |
+| Antrean | Termasuk berapa lama sudah mengantre |
+| Sebaran | Per jenis dan per nilai, sepanjang waktu |
+| Catatan | Delapan butir penjelasan istilah dan cara hitung |
+
+**Kenapa ada bagian Catatan.** Sebuah PDF gampang beredar lepas dari aplikasinya. Tanpa penjelasan, kolom "Berakhir" pada baris berstatus *ditinggalkan* gampang disalahartikan sebagai tanggal tuntas — padahal artinya tanggal berhenti. Arti tiap bintang juga ditulis lengkap, karena "3 dari 5" sendirian tidak berarti apa-apa.
+
+**Mode demo mencetak peringatan besar** di kepala lembar, supaya PDF berisi judul karangan tidak pernah disangka catatan sungguhan.
+
+Detail teknis yang menahan hasilnya tetap rapi: `thead { display: table-header-group }` mengulang kepala tabel di tiap halaman, `tr { break-inside: avoid }` mencegah satu baris terpotong dua halaman, dan `h2 { break-after: avoid }` mencegah judul bagian terdampar sendirian di kaki halaman.
+
 ## Mode demo
 
 `app.html?demo` membuka aplikasi berisi data karangan enam bulan, tanpa perlu akun. Semua tombolnya berfungsi — tambah, ubah status, ubah catatan, hapus — tapi perubahannya hanya hidup di layar itu dan tidak pernah menyentuh database.

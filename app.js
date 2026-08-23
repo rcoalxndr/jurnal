@@ -1,7 +1,7 @@
 import {
   db, el, tampilkanPesan, pasangTombolTema, selesaiMemuat, geraknyaDikurangi,
   pasangSprite, ikon,
-} from "./bersama.js?v=3";
+} from "./bersama.js?v=4";
 
 /* Siluet disuntikkan sebelum apa pun digambar, supaya <use> di HTML punya
    simbol untuk ditunjuk sejak frame pertama. */
@@ -126,6 +126,15 @@ function siapkanUI() {
   el("bulanSebelum").addEventListener("click", () => { bulanRiwayat = geserBulan(bulanRiwayat, -1); gambarRiwayat(); });
   el("bulanSesudah").addEventListener("click", () => { bulanRiwayat = geserBulan(bulanRiwayat, 1); gambarRiwayat(); });
   pasangPilihan(el("saringJenis"), "chip", (v) => { jenisTersaring = v; gambarRiwayat(); });
+
+  /* Lembar cetak disusun tepat sebelum dialog cetak dibuka, supaya selalu
+     memuat bulan yang sedang dipilih. */
+  el("tombolUnduh").addEventListener("click", () => {
+    bangunCetak();
+    window.print();
+  });
+  el("unduhKet").textContent =
+    "Pilih “Save as PDF” di dialog cetak. Di iPhone: Bagikan → Print → simpan ke Files.";
 
   siapkanDialog();
 }
@@ -899,6 +908,190 @@ function isiMeta(node, r, konteks) {
     span.textContent = b.teks;
     node.append(span);
   });
+}
+
+/* ---------------- Lembar cetak / PDF ----------------
+
+   Dokumen disusun ulang dari data setiap kali tombol ditekan, bukan disiapkan
+   di awal: isinya harus mengikuti bulan dan saringan yang sedang dipilih.
+
+   Tidak memakai pustaka pembuat PDF. jsPDF atau pdfmake berarti menarik
+   ratusan kilobita dari CDN di setiap kunjungan dan menambah satu mode gagal
+   baru, sementara jalur cetak bawaan browser sudah menghasilkan PDF yang
+   ditata penuh oleh CSS. Biayanya nol byte. */
+
+const elemen = (tag, kelas, teks) => {
+  const n = document.createElement(tag);
+  if (kelas) n.className = kelas;
+  if (teks != null) n.textContent = teks;
+  return n;
+};
+
+/* Selalu textContent, tidak pernah innerHTML -- judul dan catatan diketik
+   sendiri oleh pengguna dan bisa berisi tanda kurung siku. */
+function barisTabel(tag, sel) {
+  const tr = document.createElement("tr");
+  for (const s of sel) tr.append(elemen(tag, s.kelas, s.teks));
+  return tr;
+}
+
+function tabelCetak(judulKolom, barisIsi, kelas = "") {
+  const tabel = elemen("table", "cetak-tabel " + kelas);
+  const thead = document.createElement("thead");
+  thead.append(barisTabel("th", judulKolom));
+  const tbody = document.createElement("tbody");
+  for (const b of barisIsi) tbody.append(barisTabel("td", b));
+  tabel.append(thead, tbody);
+  return tabel;
+}
+
+function bangunCetak() {
+  const wadah = el("cetak");
+  wadah.innerHTML = "";
+
+  const berakhir = berakhirBulan(bulanRiwayat);
+  const selesai = berakhir.filter((r) => r.status === "selesai");
+  const ditinggal = berakhir.filter((r) => r.status === "ditinggalkan");
+  const rata = rataNilai(selesai);
+  const sedang = berstatus("sedang").sort((a, b) => (a.diubah_pada < b.diubah_pada ? -1 : 1));
+  const antre = berstatus("mau");
+
+  /* ---- Kepala ---- */
+  const kepala = elemen("header", "cetak-kepala");
+  kepala.append(elemen("h1", "", "Jurnal Konsumsi"));
+  kepala.append(elemen("p", "cetak-periode", labelBulan(bulanRiwayat)));
+  kepala.append(elemen("p", "cetak-meta",
+    "Dibuat " + new Date().toLocaleString("id-ID", {
+      day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit",
+    }) + " · Sumber: aplikasi Jurnal pribadi (rcoalxndr.github.io/jurnal)"));
+  wadah.append(kepala);
+
+  /* Sebuah PDF gampang beredar lepas dari konteksnya, jadi lembarnya harus
+     bisa menjelaskan dirinya sendiri. */
+  if (modeDemo) {
+    wadah.append(elemen("p", "cetak-peringatan",
+      "DATA CONTOH — judul di lembar ini karangan, bukan catatan sungguhan."));
+  }
+
+  /* ---- Ringkasan ---- */
+  wadah.append(elemen("h2", "", "Ringkasan periode"));
+  wadah.append(tabelCetak(
+    [{ teks: "Keterangan" }, { teks: "Jumlah", kelas: "kanan" }],
+    [
+      [{ teks: "Selesai" }, { teks: judulan(selesai.length), kelas: "kanan angka-cetak" }],
+      [{ teks: "Ditinggalkan" }, { teks: judulan(ditinggal.length), kelas: "kanan angka-cetak" }],
+      [{ teks: "Rata-rata nilai yang selesai" },
+       { teks: rata ? rata.toFixed(1).replace(".", ",") + " dari 5" : "belum ada nilai", kelas: "kanan angka-cetak" }],
+      [{ teks: "Sedang jalan (per tanggal cetak)" }, { teks: judulan(sedang.length), kelas: "kanan angka-cetak" }],
+      [{ teks: "Di antrean (per tanggal cetak)" }, { teks: judulan(antre.length), kelas: "kanan angka-cetak" }],
+    ],
+  ));
+
+  const sebelumnya = berakhirBulan(geserBulan(bulanRiwayat, -1)).filter((r) => r.status === "selesai");
+  let kalimat;
+  if (!berakhir.length) {
+    kalimat = "Tidak ada judul yang berakhir pada periode ini.";
+  } else if (!sebelumnya.length) {
+    kalimat = "Tidak ada data bulan sebelumnya untuk dibandingkan.";
+  } else {
+    const selisih = selesai.length - sebelumnya.length;
+    kalimat = selisih === 0
+      ? `Sama banyak dengan ${labelBulan(geserBulan(bulanRiwayat, -1))}.`
+      : `${Math.abs(selisih)} ${selisih > 0 ? "lebih banyak" : "lebih sedikit"} dibanding ${labelBulan(geserBulan(bulanRiwayat, -1))}.`;
+  }
+  wadah.append(elemen("p", "cetak-kalimat", kalimat));
+
+  /* ---- Yang berakhir bulan ini ---- */
+  wadah.append(elemen("h2", "", "Yang berakhir pada periode ini"));
+  if (!berakhir.length) {
+    wadah.append(elemen("p", "cetak-kalimat", "Tidak ada."));
+  } else {
+    const urut = [...berakhir].sort((a, b) => (a.selesai_pada < b.selesai_pada ? -1 : 1));
+    wadah.append(tabelCetak(
+      [{ teks: "Judul" }, { teks: "Jenis" }, { teks: "Status" },
+       { teks: "Mulai" }, { teks: "Berakhir" }, { teks: "Nilai" }, { teks: "Catatan" }],
+      urut.map((r) => [
+        { teks: r.judul },
+        { teks: JENIS[r.jenis] },
+        { teks: STATUS[r.status] },
+        { teks: tanggalPendek(r.mulai_pada) || "—" },
+        { teks: tanggalPendek(r.selesai_pada) || "—" },
+        { teks: r.nilai ? `${r.nilai}/5 ${ARTI_NILAI[r.nilai]}` : "—" },
+        { teks: r.catatan || "—" },
+      ]),
+      "tabel-rincian",
+    ));
+  }
+
+  /* ---- Sedang jalan ---- */
+  if (sedang.length) {
+    wadah.append(elemen("h2", "", "Sedang jalan"));
+    wadah.append(tabelCetak(
+      [{ teks: "Judul" }, { teks: "Jenis" }, { teks: "Mulai" }, { teks: "Terakhir disentuh", kelas: "kanan" }],
+      sedang.map((r) => [
+        { teks: r.judul },
+        { teks: JENIS[r.jenis] },
+        { teks: tanggalPendek(r.mulai_pada) || "—" },
+        { teks: umurHari(r.diubah_pada) + " hari lalu", kelas: "kanan angka-cetak" },
+      ]),
+    ));
+  }
+
+  /* ---- Antrean ---- */
+  if (antre.length) {
+    wadah.append(elemen("h2", "", "Antrean"));
+    wadah.append(tabelCetak(
+      [{ teks: "Judul" }, { teks: "Jenis" }, { teks: "Ditambahkan", kelas: "kanan" }],
+      antre.map((r) => [
+        { teks: r.judul },
+        { teks: JENIS[r.jenis] },
+        { teks: umurHari(r.dibuat_pada) + " hari lalu", kelas: "kanan angka-cetak" },
+      ]),
+    ));
+  }
+
+  /* ---- Sebaran sepanjang waktu ---- */
+  const selesaiSemua = berstatus("selesai");
+  if (selesaiSemua.length) {
+    wadah.append(elemen("h2", "", "Sebaran sepanjang waktu"));
+    const hitungan = hitungJenis(selesaiSemua);
+    wadah.append(tabelCetak(
+      [{ teks: "Jenis" }, { teks: "Selesai", kelas: "kanan" }, { teks: "Porsi", kelas: "kanan" }],
+      URUT_JENIS.map((j) => [
+        { teks: JENIS[j] },
+        { teks: String(hitungan.get(j)), kelas: "kanan angka-cetak" },
+        { teks: Math.round(hitungan.get(j) / selesaiSemua.length * 100) + "%", kelas: "kanan angka-cetak" },
+      ]),
+    ));
+
+    const sebaranNilai = perNilai(selesaiSemua);
+    if (sebaranNilai.length) {
+      wadah.append(tabelCetak(
+        [{ teks: "Nilai" }, { teks: "Judul", kelas: "kanan" }],
+        sebaranNilai.map(([label, jml]) => [
+          { teks: label },
+          { teks: String(jml), kelas: "kanan angka-cetak" },
+        ]),
+      ));
+    }
+  }
+
+  /* ---- Catatan ----
+     Lembar yang beredar tanpa aplikasinya harus bisa menjelaskan sendiri
+     istilah dan angkanya. */
+  wadah.append(elemen("h2", "", "Catatan"));
+  const catatan = elemen("ol", "cetak-catatan");
+  [
+    "Sebuah judul melewati empat status: “Mau” (masuk antrean, belum dimulai), “Sedang” (sedang berjalan), “Selesai” (tuntas), dan “Ditinggalkan” (berhenti sebelum tuntas, sengaja).",
+    "Kolom “Berakhir” berlaku untuk yang selesai maupun yang ditinggalkan — untuk yang ditinggalkan, artinya tanggal berhenti, bukan tanggal tuntas.",
+    "Bagian “Yang berakhir pada periode ini” dikelompokkan menurut tanggal berakhir, bukan tanggal mulai. Sebuah buku yang dimulai Januari dan selesai Maret akan muncul di laporan Maret.",
+    `Nilai memakai skala 1–5: 1 ${ARTI_NILAI[1]}, 2 ${ARTI_NILAI[2]}, 3 ${ARTI_NILAI[3]}, 4 ${ARTI_NILAI[4]}, 5 ${ARTI_NILAI[5]}. Memberi nilai bersifat opsional, jadi rata-rata hanya dihitung dari judul yang benar-benar dinilai.`,
+    "Bagian “Sedang jalan” dan “Antrean” menggambarkan keadaan pada tanggal lembar ini dibuat, bukan keadaan pada akhir periode.",
+    "“Terakhir disentuh” dihitung dari perubahan terakhir pada baris itu — menandai, menilai, atau mengubah catatannya.",
+    "Bagian “Sebaran sepanjang waktu” menghitung seluruh riwayat, bukan hanya periode di halaman pertama. Porsi dihitung terhadap total judul yang selesai.",
+    "Tanggal memakai waktu setempat (WIB). Lembar ini dihasilkan dari catatan pribadi yang dimasukkan sendiri.",
+  ].forEach((t) => catatan.append(elemen("li", "", t)));
+  wadah.append(catatan);
 }
 
 /* Data karangan untuk mode demo. Judul sengaja dibuat generik supaya tidak

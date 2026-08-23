@@ -998,6 +998,105 @@ input::placeholder { color: var(--ink-faint); }
   .chip { padding: 7px 11px; font-size: 12.5px; }
 }
 
+/* ================================================================
+   LEMBAR CETAK / PDF
+   ================================================================
+   Tidak memakai pustaka pembuat PDF. Jalur cetak bawaan browser sudah
+   menghasilkan PDF yang ditata penuh oleh CSS, dengan biaya nol byte dan
+   tanpa mode gagal baru kalau sebuah CDN bermasalah.
+
+   Lembarnya dokumen terpisah, bukan tampilan aplikasi yang dipaksa muat di
+   kertas -- jadi tata letak layar tidak perlu dikompromikan demi hasil
+   cetak, dan sebaliknya. */
+
+.unduh-baris { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 0 2px; }
+.unduh-baris .tombol { display: inline-flex; align-items: center; gap: 7px; }
+.unduh-baris .catatan-kecil { flex: 1 1 190px; }
+
+.cetak { display: none; }
+
+@media print {
+  @page { size: A4 portrait; margin: 16mm 14mm 18mm; }
+
+  /* Kertas selalu putih dengan tinta hitam. Palet layar boros tinta dan
+     kontrasnya tidak dirancang untuk kertas. */
+  html, body {
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 10pt;
+  }
+  html.memuat body { opacity: 1 !important; }
+
+  /* Seluruh aplikasi disembunyikan -- yang dicetak cuma lembarnya. */
+  .topbar, .latar-dekor, .spanduk-demo, .kaki, .tampilan, .dekor,
+  .dialog, .masuk-grid, .masuk-kaki, .tema-lepas { display: none !important; }
+
+  .cetak { display: block !important; }
+
+  .cetak-kepala { border-bottom: 1.4pt solid #000; padding-bottom: 6pt; margin-bottom: 12pt; }
+  .cetak-kepala h1 { font-size: 17pt; font-weight: 700; letter-spacing: -0.01em; }
+  .cetak-periode { margin: 2pt 0 0; font-size: 12pt; font-weight: 600; }
+  .cetak-meta { margin: 4pt 0 0; font-size: 8pt; color: #444; }
+
+  .cetak-peringatan {
+    border: 1.2pt solid #000;
+    padding: 6pt 8pt;
+    margin: 0 0 12pt;
+    font-weight: 700;
+    font-size: 9.5pt;
+    letter-spacing: 0.04em;
+  }
+
+  /* break-after: avoid mencegah judul bagian terdampar sendirian di kaki
+     halaman, terpisah dari tabel yang dijudulinya. */
+  .cetak h2 {
+    font-size: 11.5pt;
+    margin: 14pt 0 5pt;
+    padding-bottom: 2pt;
+    border-bottom: 0.6pt solid #000;
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+  .cetak-kalimat { margin: 5pt 0 0; font-size: 9.5pt; }
+
+  .cetak-tabel { width: 100%; border-collapse: collapse; margin-top: 4pt; }
+  .cetak-tabel th, .cetak-tabel td {
+    text-align: left;
+    padding: 3.4pt 4pt;
+    font-size: 9pt;
+    border-bottom: 0.4pt solid #999;
+    vertical-align: top;
+  }
+  .cetak-tabel th {
+    font-size: 7.6pt;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 0.8pt solid #000;
+  }
+  .cetak-tabel .kanan { text-align: right; }
+  .cetak-tabel .tebal { font-weight: 700; }
+  .cetak-tabel .angka-cetak { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  /* Kepala tabel diulang di tiap halaman, dan satu baris tidak boleh
+     terpotong jadi dua halaman. Keduanya wajib untuk tabel panjang. */
+  .cetak-tabel thead { display: table-header-group; }
+  .cetak-tabel tr { break-inside: avoid; page-break-inside: avoid; }
+
+  /* Judul dan catatan boleh melar; kolom tanggal dan nilai dijaga sempit
+     supaya tidak ada yang terdorong keluar halaman. */
+  .tabel-rincian th:nth-child(2), .tabel-rincian td:nth-child(2),
+  .tabel-rincian th:nth-child(3), .tabel-rincian td:nth-child(3) { width: 9%; }
+  .tabel-rincian th:nth-child(4), .tabel-rincian td:nth-child(4),
+  .tabel-rincian th:nth-child(5), .tabel-rincian td:nth-child(5) { width: 9%; white-space: nowrap; }
+  .tabel-rincian th:nth-child(6), .tabel-rincian td:nth-child(6) { width: 15%; }
+
+  .cetak-catatan { margin: 6pt 0 0; padding-left: 14pt; }
+  .cetak-catatan li { font-size: 8.6pt; margin-bottom: 3.5pt; line-height: 1.45; }
+
+  /* Tautan tidak bisa diklik di kertas; alamatnya juga tidak perlu dicetak. */
+  a { text-decoration: none; color: inherit; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.001ms !important;

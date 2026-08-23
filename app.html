@@ -21,7 +21,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Karla:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=4">
 <script>
   try {
     var t = localStorage.getItem('theme');
@@ -207,6 +207,14 @@
       <button type="button" class="ikon-tombol" id="bulanSesudah" aria-label="Bulan berikutnya">›</button>
     </div>
 
+    <div class="unduh-baris">
+      <button type="button" class="tombol kecil" id="tombolUnduh">
+        <svg class="ikon" aria-hidden="true"><use href="#ik-buku"/></svg>
+        <span>Unduh PDF</span>
+      </button>
+      <span class="catatan-kecil" id="unduhKet"></span>
+    </div>
+
     <section class="kartu">
       <div class="ringkas-tiga">
         <div><span class="k">Selesai</span><strong id="riwSelesai" class="angka masuk">—</strong></div>
@@ -381,11 +389,19 @@
   </form>
 </dialog>
 
+<!-- =============== LEMBAR CETAK ===============
+     Dokumen yang keluar saat "Unduh PDF" ditekan. Disembunyikan di layar dan
+     hanya muncul di media cetak, jadi tata letak aplikasinya tidak perlu
+     dikompromikan demi hasil cetak, dan sebaliknya.
+
+     aria-hidden karena isinya menduplikasi data yang sudah ada di layar. -->
+<section class="cetak" id="cetak" aria-hidden="true"></section>
+
 <footer class="kaki wrap">
   <span>Data tersimpan di databasemu sendiri.</span>
   <a href="https://github.com/rcoalxndr/jurnal">Kode sumber</a>
 </footer>
 
-<script type="module" src="app.js?v=3"></script>
+<script type="module" src="app.js?v=4"></script>
 </body>
 </html>
