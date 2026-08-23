@@ -72,3 +72,25 @@ Ambil judul otomatis dari API · sampul/poster · jumlah episode atau halaman ·
 - **Ringkasan berita tiap 4 jam dikirim PDF ke WA/email** — ditaruh di urutan terakhir oleh Rico sendiri. 6 PDF sehari berarti inbox yang tidak pernah dikosongkan; PDF lebih susah dibaca di HP daripada teks; kirim otomatis butuh WhatsApp Business API berbayar; dan butuh server terjadwal + kunci rahasia yang tidak boleh masuk repo publik. Pola yang sama dengan proyek Sheets + Apps Script + Telegram yang dulu dihapus. **Janji ke diri sendiri di portofolio belum ditepati: coba manual seminggu dulu.** Kalau nanti dibangun, bentuk pertamanya satu halaman web sekali sehari, bukan PDF tiap 4 jam.
 - **Simulator IPK, Jadwal Kuliah → .ics, Pelacak Waktu** — butuh perilaku baru lebih dulu.
 - **Pelacak deadline kuliah** — kalah dari Apple Reminders di hari pertama: notifikasi native, Siri, widget. Web app di iPhone tidak bisa menandingi itu.
+
+
+---
+
+## Perubahan
+
+Bagian ini **hanya ditambahi**, tidak pernah ditulis ulang. Entri terbaru di bawah.
+
+### 2026-08-23 — Ekspor PDF + tautan dari portfolio
+
+**Ditambahkan: unduh laporan sebagai PDF** (`v=4`)
+- Tombol di tab Riwayat menyusun lembar `#cetak` dari bulan yang sedang dipilih, lalu `window.print()`.
+- **Sengaja tanpa pustaka PDF** — alasan sama dengan aplikasi keuangan.
+- Isi lembar: ringkasan periode, yang berakhir bulan itu (judul, jenis, status, tanggal, nilai, catatan), sedang jalan + berapa hari sejak disentuh, antrean, sebaran jenis & nilai sepanjang waktu, dan **8 butir catatan**.
+- Catatan menjelaskan hal yang gampang disalahartikan: kolom "Berakhir" pada baris *ditinggalkan* berarti tanggal berhenti, bukan tanggal tuntas. Arti tiap bintang ditulis lengkap.
+
+**Diuji**
+- Aturan cetak diterapkan sementara sebagai gaya layar lalu diukur — semua lolos.
+- Kasus tepi bulan kosong ditangani dengan kalimat penjelas, bukan tabel kosong.
+
+**Ditautkan dari portfolio**
+- Studi kasus lengkap sekarang ada di `portfolio\jurnal.html`.
