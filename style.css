@@ -272,7 +272,10 @@ a { color: var(--accent-ink); text-underline-offset: 3px; }
 .sapaan { font-size: clamp(24px, 4vw, 32px); font-weight: 700; letter-spacing: -0.02em; }
 .sapaan-sub { margin: 3px 0 0; font-size: 14px; color: var(--ink-dim); }
 
-.dasbor-grid { display: grid; gap: 16px; margin-top: 8px; }
+/* `minmax(0, 1fr)`, bukan kolom implisit `auto`: tanpa ini kolom tunggal di
+   HP melar mengikuti isi terlebar (mis. tabel ber-`min-width` di dalam
+   pembungkus scroll), lalu semua kartu ikut selebar itu dan halaman meleber. */
+.dasbor-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; margin-top: 8px; }
 .kolom { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 
 @media (min-width: 940px) {
@@ -377,7 +380,7 @@ a { color: var(--accent-ink); text-underline-offset: 3px; }
 .detail-blok { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--line); }
 .detail-blok[hidden] { display: none; }
 .detail-kepala { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
-.detail-grid { display: grid; gap: 16px; }
+.detail-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
 @media (min-width: 940px) {
   .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
   .detail-grid > .lebar-penuh { grid-column: 1 / -1; }
@@ -506,7 +509,7 @@ input::placeholder { color: var(--ink-dim); }
 .bulan-nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 2px 4px; }
 .bulan-nav strong { font-size: 17px; font-weight: 700; }
 
-.ringkas-tiga { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.ringkas-tiga { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .ringkas-tiga > div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .ringkas-tiga .angka { font-size: 14px; overflow-wrap: anywhere; }
 
@@ -623,6 +626,32 @@ input::placeholder { color: var(--ink-dim); }
    padahal justru inilah tombol yang paling sering diketuk dari HP. */
 .it-aksi .tombol { font-size: 12.5px; padding: 9px 13px; min-height: 44px; }
 
+/* Layar HP: bikin item daftar padat.
+   - `.it-info` dapat baris penuh supaya judul tidak terjepit tombol.
+   - Label jenis teks ("FILM"/"BUKU"/...) disembunyikan dari mata tapi tetap
+     ada untuk pembaca layar -- siluet di kiri sudah menandai jenisnya, dan
+     labelnya makan ~50px di baris judul.
+   - Daftar satu-aksi (Selesai bulan ini / Riwayat): tombol "Ubah" ke pojok
+     kanan atas, keluar dari alur -- tidak menambah baris.
+   - Daftar "sedang" / "antrean" (2-3 tombol): tombol turun ke baris bawah
+     rata kiri (perilaku default setelah margin-left auto dilepas). */
+@media (max-width: 620px) {
+  .item-list li { padding: 10px 2px; gap: 8px 10px; }
+  .it-info { flex-basis: 100%; }
+  .it-jenis {
+    position: absolute; width: 1px; height: 1px;
+    padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+  }
+  /* Padding di seluruh info (judul + meta), bukan cuma judul -- kalau tidak,
+     ekor baris meta ("... Salah satu terbaik") tertutup tombol. */
+  #daftarSelesai .it-info,
+  #daftarRiwayat .it-info { padding-right: 58px; }
+  #daftarSelesai .it-aksi,
+  #daftarRiwayat .it-aksi { position: absolute; top: 9px; right: 2px; }
+  #daftarSelesai .it-aksi .tombol,
+  #daftarRiwayat .it-aksi .tombol { padding: 8px 11px; }
+}
+
 /* ============ DIALOG UBAH ============ */
 
 .dialog {
@@ -702,9 +731,10 @@ input::placeholder { color: var(--ink-dim); }
 
 @media (max-width: 400px) {
   .dua-kolom { grid-template-columns: 1fr; }
-  .ringkas-tiga { grid-template-columns: 1fr; gap: 10px; }
-  .tab { padding: 10px 11px 11px; font-size: 13.5px; }
-  .tab::after { left: 9px; right: 9px; }
+  /* .ringkas-tiga TETAP tiga kolom: labelnya pendek dan angkanya cuma 14px,
+     jadi muat bertiga bahkan di 320px. Ditumpuk jadi satu kolom malah bikin
+     tiga baris tinggi untuk tiga angka kecil. */
+  .ringkas-tiga { gap: 8px; }
 }
 
 /* ================================================================

@@ -1,7 +1,7 @@
 import {
   db, el, tampilkanPesan, pasangTombolTema, selesaiMemuat, geraknyaDikurangi,
   pasangSprite, ikon,
-} from "./bersama.js?v=7";
+} from "./bersama.js?v=10";
 
 /* Siluet disuntikkan sebelum apa pun digambar, supaya <use> di HTML punya
    simbol untuk ditunjuk sejak frame pertama. */
@@ -987,7 +987,11 @@ function isiMeta(node, r, konteks) {
   } else {
     bagian.push(STATUS[r.status].toLowerCase());
     if (r.selesai_pada) bagian.push(tanggalPendek(r.selesai_pada));
-    if (r.nilai) bagian.push(ARTI_NILAI[r.nilai]);
+    /* Arti nilai TIDAK diulang di meta untuk yang "selesai" -- baris bintang
+       yang bisa diketuk tepat di bawahnya sudah menyampaikannya, dan
+       mengulangnya bikin baris meta panjang lalu membungkus di HP.
+       Untuk "ditinggalkan" (tak ada baris bintang) tetap ditulis. */
+    if (r.nilai && r.status !== "selesai") bagian.push(ARTI_NILAI[r.nilai]);
   }
 
   bagian.forEach((b, i) => {
