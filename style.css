@@ -610,7 +610,13 @@ input::placeholder { color: var(--ink-dim); }
 .it-meta { font-family: var(--mono); font-size: 11px; color: var(--ink-dim); }
 .it-catatan { font-size: 13px; color: var(--ink-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-.it-aksi { display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+/* TANPA `margin-left: auto`. Saat info + tiga tombol muat satu baris,
+   `.it-info` yang `flex-grow: 1` sudah mendorong aksi ke kanan sendiri. Saat
+   tidak muat (kolom sempit / layar HP), aksi turun ke baris bawah -- dan di
+   situ `margin-left: auto` dulu membuatnya ter-indent mengambang ke kanan,
+   tidak sejajar dengan apa pun. Tanpa itu, aksi yang turun rata kiri dengan
+   info. */
+.it-aksi { display: flex; gap: 6px; flex-wrap: wrap; }
 
 /* Tinggi 44px, bukan sekadar mengecilkan .tombol.kecil yang min-height-nya 0.
    Terukur: tanpa ini tombolnya cuma 29px -- di bawah ambang target sentuh,
@@ -795,8 +801,11 @@ input::placeholder { color: var(--ink-dim); }
    benda di rak daripada baris di buku kas. Ini pembeda visual paling kentara
    dari aplikasi keuangan. */
 .item-list li { position: relative; padding-left: 46px; }
+/* Ikon rata atas, bukan di-tengah-kan: kalau infonya tiga baris (judul +
+   meta + bintang) atau baris aksi turun ke bawah di layar sempit, ikon yang
+   di-tengah-kan malah mengambang jauh dari judulnya. */
 .it-punggung {
-  position: absolute; left: 2px; top: 50%; transform: translateY(-50%);
+  position: absolute; left: 2px; top: 12px;
   width: 34px; height: 34px;
   display: grid; place-items: center;
   border-radius: 9px;
