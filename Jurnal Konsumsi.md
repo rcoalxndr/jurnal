@@ -110,3 +110,25 @@ Sekarang bintang kosong memakai glyph **☆** dan bintang terisi **★**, dengan
 **Hasil akhir:** disisir seluruh elemen teks yang tampil — tab Sekarang, Riwayat, Tren, **dialog ubah**, dan halaman masuk — di kedua tema: **nol kegagalan**.
 
 **Catatan alat:** jangan mengukur dengan mengganti `data-theme` saat panel browser tidak menggambar; hasilnya keadaan setengah-jadi. Muat ulang dengan skema warna OS. Dan `color-mix()` menghasilkan `color(srgb ...)` berskala 0–1, bukan 0–255.
+
+### 2026-09-04 — Disamakan dengan aplikasi keuangan yang baru (`v=6`)
+
+**Pemicu:** aplikasi keuangan dibangun ulang jadi dashboard satu-halaman berkulit dingin (ground putih `#FAFAFA`, near-mono, aksen hitam, Poppins). Jurnal masih pakai tampilan krem + hiasan lama, jadi dua aplikasi yang berbagi database dan login jadi terbaca seperti tidak berhubungan. Rico minta "samakan penuh — termasuk jadi satu halaman tanpa tab".
+
+**Yang berubah:**
+- **Token warna** `:root` + kedua blok gelap diganti dengan sistem token Keuangan (putih/hitam/Poppins). Token data `--masuk`/`--keluar`/`--keluar-teks`/`--isi-*` **dipertahankan**. `--grid` dibuang, `--radius-kartu: 18px` ditambahkan.
+- **Tiga tab (Sekarang / Riwayat / Tren) dihapus.** Jadi satu halaman dashboard: kartu hero gelap (selesai bulan ini + rak per jenis), formulir tambah, daftar "selesai bulan ini" (dibatasi 6), "sedang jalan", "antrean", grafik garis "selesai per bulan", dan KPI "sorotan bulan ini". Riwayat lengkap (jelajah per bulan, sebaran jenis & nilai, tabel bulanan) pindah ke satu **seksi rincian** di balik tombol "Lihat semua".
+- **Grafik tren:** kolom batang → **grafik garis** (`garisBulanan`, sama seperti "Reports" Keuangan) — koordinat piksel, garis dilembutkan bezier, titik terakhir + gelembung nilai.
+- **Hiasan latar dilepas seluruhnya** — siluet melayang, pita seluloid, semua `@keyframes` terkait, dan dekorasi halaman masuk. Alasannya lihat entri putaran kedua di atas: hiasan di belakang teks selalu menekan kontras dan tidak membawa informasi. Yang tersisa dari siluet adalah pemakaian fungsionalnya (punggung kartu, pemilih jenis, chip, label grafik). `.alur` tiga-status di halaman masuk **tetap** — itu isi, bukan hiasan.
+- **Pencarian judul** (`#cariJudul`) di topbar, menyaring keempat daftar sekaligus.
+- **KPI baru** di "sorotan bulan ini": rata-rata nilai bulan ini, jumlah judul mangkrak (≥ 21 hari), total selesai tahun berjalan.
+
+**Diverifikasi (DOM + computed-style, panel browser tidak andal sesi ini):**
+- Terang & gelap (sistem, tanpa `data-theme`): **nol kegagalan kontras** — semua pasang teks ≥ 5,3:1, hero-catatan di kartu gelap 6,2–6,9:1.
+- Tidak ada overflow horizontal di 375px maupun 1280px. Grid dua kolom aktif ≥ 940px, menumpuk di bawahnya.
+- `node --check` app.js/bersama.js/login.js lolos; hitungan kurung seimbang.
+- Mode demo, buka/tutup rincian, jelajah bulan, saring jenis, pencarian — semua jalan tanpa error console.
+
+**Catatan:** `localStorage['theme']` yang menempel dari sesi lama (`data-theme=light`) sempat menutupi tema gelap saat verifikasi. Bersihkan dulu sebelum menguji tema sistem.
+
+**Portfolio:** studi kasus (`jurnal.en/id.html`) dapat bab baru "Later, I made it match the finance app". `README.md` disesuaikan (bagian struktur, hiasan latar, tata letak, PDF).

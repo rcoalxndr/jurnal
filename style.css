@@ -1,113 +1,93 @@
 /* Mobile-first: aplikasi ini paling sering dibuka dari HP, tepat setelah
-   selesai nonton atau baca. Target sentuh besar, sedikit ketukan sampai
-   "tersimpan".
+   selesai nonton atau baca.
 
-   Palet diwarisi dari aplikasi keuangan, dan angkanya sudah diukur di sana:
-   pasangan hijau/merah yang lazim gagal uji buta warna (deutan ΔE 3,1),
-   sedangkan biru/oranye di bawah lolos di kedua mode dengan langkah warna
-   berbeda untuk terang dan gelap -- bukan sekadar dibalik.
+   Design system disamakan dengan aplikasi Keuangan (Sep 2026): ground putih,
+   near-monokrom, aksen hitam, font Poppins, kartu rounded. Dua app Rico jadi
+   terasa satu perancang. Yang tetap khas Jurnal: **jenis dibedakan lewat
+   siluet/bentuk, bukan warna** (film/serial/buku/game) -- keputusan
+   aksesibilitas, tak berubah.
 
-   Yang TIDAK dilakukan di sini: memberi warna berbeda untuk tiap jenis
-   (film/serial/buku/game). Empat warna kategori berarti empat pasang jarak
-   warna baru yang belum pernah diuji. Jenis ditandai label teks, dan semua
-   batang grafik sewarna -- yang membawa informasi adalah panjangnya. */
+   Warna data (--masuk/--keluar dipakai untuk sedang/antre & selesai/ditinggal)
+   diwarisi dari Keuangan dan sudah diukur di sana: hijau/merah gagal uji buta
+   warna (deutan ΔE 3,1), biru/oranye lolos (ΔE 19,7 terang / 21,1 gelap). */
 
 :root {
-  --paper:       #EDE7DA;
-  --raised:      #F7F3EA;
-  --sunken:      #E4DCCB;
-  --ink:         #26221C;
-  --ink-dim:     #5F584D;
-  /* --ink-faint TIDAK BOLEH dipakai untuk teks maupun ikon bermakna.
-     Diukur di kedua tema, semua kombinasi latar: 2,87-3,33:1 -- gagal ambang
-     4,5:1 di semuanya. Token ini hanya untuk garis (border-color); teks
-     sekunder pakai --ink-dim (5,17-6,34:1). Cacat yang sama ditemukan di
-     tiga proyek sekaligus karena palet ini disalin antar proyek. */
-  --ink-faint:   #8C8478;
-  --line:        #D6CDBB;
-  --line-soft:   #E2DACA;
-  --accent:      #34506B;
-  --accent-ink:  #2A4257;
-  --accent-soft: #DCE4EC;
+  --paper:       #FAFAFA;
+  --raised:      #FFFFFF;
+  --sunken:      #F4F4F5;
+  --ink:         #18181B;
+  --ink-dim:     #6B6B72;   /* di #FFFFFF 5,29:1 · di #FAFAFA 5,07:1 */
+  /* --ink-faint HANYA untuk garis/hiasan (2,56:1 di #FFFFFF, gagal 4,5:1). */
+  --ink-faint:   #A1A1AA;
+  --line:        #E4E4E7;
+  --line-soft:   #EFEFF1;
+  --accent:      #18181B;   /* pil aktif & tombol utama = hitam, bukan warna */
+  --accent-ink:  #18181B;
+  --accent-soft: #F4F4F5;
+  --radius-kartu: 18px;
 
   --masuk:       #2D6A9F;
   --keluar:      #C2621A;
-  --grid:        #DDD5C4;
-
-  /* Turunan --keluar untuk dua pemakaian yang punya syarat berbeda dari
-     grafik. Token data --masuk/--keluar sendiri TIDAK diubah: keduanya sudah
-     diukur untuk uji buta warna, dan tugasnya membedakan arah uang.
-
-     --keluar-teks : --keluar sebagai TEKS di atas kartu cuma 3,75:1 di mode
-                     terang. Digelapkan sampai 4,57:1. Di mode gelap --keluar
-                     sudah 4,88:1, jadi nilainya sama.
-     --isi-*       : isian tombol/pesan yang memuat teks PUTIH. Putih di atas
-                     --keluar cuma 4,15:1 (terang) dan 3,29:1 (gelap). */
-  --keluar-teks: #A85416;
+  --keluar-teks: #A85416;   /* --keluar sebagai teks di putih: 5,32:1 */
   --isi-masuk:   #2D6A9F;
   --isi-keluar:  #B25A18;
 
+  --bayang:      0 1px 3px rgba(24, 24, 27, .04), 0 1px 2px rgba(24, 24, 27, .06);
+  --bayang-naik: 0 4px 16px -4px rgba(24, 24, 27, .10);
 
-  --bayang:      0 1px 2px rgba(38, 34, 28, .05), 0 8px 24px -12px rgba(38, 34, 28, .16);
-  --bayang-naik: 0 2px 4px rgba(38, 34, 28, .06), 0 14px 32px -14px rgba(38, 34, 28, .24);
-
-  --sans: 'Karla', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --sans: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
+/* DARK. Netral diturunkan sistematis; warna data (masuk/keluar) dapat nilai
+   dark sendiri yang diukur, bukan dibalik dari terang. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --paper:       #1A1815;
-    --raised:      #24211A;
-    --sunken:      #14120F;
-    --ink:         #EDE7DA;
-    --ink-dim:     #9A9185;
-    --ink-faint:   #6E675C;
-    --line:        #353027;
-    --line-soft:   #2B271F;
-    --accent:      #8FB3D4;
-    --accent-ink:  #A9C6E0;
-    --accent-soft: #232F3A;
+    --paper:       #131316;
+    --raised:      #1C1C1F;
+    --sunken:      #232327;
+    --ink:         #FAFAFA;
+    --ink-dim:     #A1A1AA;
+    --ink-faint:   #52525B;
+    --line:        #2E2E33;
+    --line-soft:   #26262A;
+    --accent:      #FAFAFA;
+    --accent-ink:  #FAFAFA;
+    --accent-soft: #26262A;
 
     --masuk:       #4590CE;
     --keluar:      #CB7A36;
-    --grid:        #302B23;
-
-  --keluar-teks: #CB7A36;
-  --isi-masuk:   #3878AB;
-  --isi-keluar:  #A05F2B;
-
-
     --keluar-teks: #CB7A36;
     --isi-masuk:   #3878AB;
     --isi-keluar:  #A05F2B;
 
-
-    --bayang:      0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px -12px rgba(0, 0, 0, .55);
-    --bayang-naik: 0 2px 4px rgba(0, 0, 0, .34), 0 14px 32px -14px rgba(0, 0, 0, .66);
+    --bayang:      0 1px 3px rgba(0, 0, 0, .35), 0 1px 2px rgba(0, 0, 0, .45);
+    --bayang-naik: 0 4px 16px -4px rgba(0, 0, 0, .55);
   }
 }
 
 :root[data-theme="dark"] {
-  --paper:       #1A1815;
-  --raised:      #24211A;
-  --sunken:      #14120F;
-  --ink:         #EDE7DA;
-  --ink-dim:     #9A9185;
-  --ink-faint:   #6E675C;
-  --line:        #353027;
-  --line-soft:   #2B271F;
-  --accent:      #8FB3D4;
-  --accent-ink:  #A9C6E0;
-  --accent-soft: #232F3A;
+  --paper:       #131316;
+  --raised:      #1C1C1F;
+  --sunken:      #232327;
+  --ink:         #FAFAFA;
+  --ink-dim:     #A1A1AA;
+  --ink-faint:   #52525B;
+  --line:        #2E2E33;
+  --line-soft:   #26262A;
+  --accent:      #FAFAFA;
+  --accent-ink:  #FAFAFA;
+  --accent-soft: #26262A;
 
   --masuk:       #4590CE;
   --keluar:      #CB7A36;
-  --grid:        #302B23;
+  --keluar-teks: #CB7A36;
+  --isi-masuk:   #3878AB;
+  --isi-keluar:  #A05F2B;
 
-  --bayang:      0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px -12px rgba(0, 0, 0, .55);
-  --bayang-naik: 0 2px 4px rgba(0, 0, 0, .34), 0 14px 32px -14px rgba(0, 0, 0, .66);
+  --bayang:      0 1px 3px rgba(0, 0, 0, .35), 0 1px 2px rgba(0, 0, 0, .45);
+  --bayang-naik: 0 4px 16px -4px rgba(0, 0, 0, .55);
 }
 
 * { box-sizing: border-box; }
@@ -127,14 +107,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* 1000px, bukan 660px seperti aplikasi keuangan. Aplikasi ini punya empat
-   jenis yang perlu terlihat berdampingan, dan tab Sekarang dibagi dua kolom
-   di layar lebar. */
-.wrap { max-width: 1000px; margin: 0 auto; padding: 0 18px; }
-
-/* Riwayat dan Tren tetap satu kolom sempit -- keduanya dibaca berurutan dari
-   atas ke bawah, dan baris teks selebar 1000px melelahkan mata. */
-.sempit { max-width: 680px; margin-inline: auto; width: 100%; }
+/* Kanvas: sempit di HP, melebar di desktop jadi dashboard grid (disamakan
+   dengan Keuangan). */
+.wrap { max-width: 600px; margin: 0 auto; padding: 0 18px; }
+@media (min-width: 900px) {
+  .wrap { max-width: 1140px; padding: 0 32px; }
+}
 
 h1, h2 { margin: 0; text-wrap: balance; }
 h1 { font-size: clamp(30px, 7vw, 42px); font-weight: 700; letter-spacing: -0.025em; line-height: 1.12; }
@@ -165,14 +143,6 @@ a { color: var(--accent-ink); text-underline-offset: 3px; }
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: none; }
 }
-@keyframes apung {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-12px); }
-}
-@keyframes alirGaris {
-  to { stroke-dashoffset: -60; }
-}
-
 /* ============ HALAMAN MASUK ============ */
 
 .halaman-masuk {
@@ -184,15 +154,6 @@ a { color: var(--accent-ink); text-underline-offset: 3px; }
 }
 
 .tema-lepas { position: absolute; top: 18px; right: 18px; z-index: 3; }
-
-.dekor {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  overflow: hidden;
-}
-.dekor .d-alir { animation: alirGaris 3.4s linear infinite; }
 
 .masuk-grid {
   position: relative;
@@ -215,8 +176,9 @@ a { color: var(--accent-ink); text-underline-offset: 3px; }
   font-size: 10.5px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--accent-ink);
-  background: var(--accent-soft);
+  color: var(--ink-dim);
+  background: var(--sunken);
+  border: 1px solid var(--line);
   border-radius: 999px;
   padding: 5px 12px;
   width: fit-content;
@@ -232,7 +194,7 @@ a { color: var(--accent-ink); text-underline-offset: 3px; }
 .poin li:nth-child(1) { animation-delay: 0.10s; }
 .poin li:nth-child(2) { animation-delay: 0.17s; }
 .poin li:nth-child(3) { animation-delay: 0.24s; }
-.poin-no { font-family: var(--mono); font-size: 11.5px; color: var(--keluar-teks); padding-top: 3px; }
+.poin-no { font-family: var(--mono); font-size: 11.5px; color: var(--ink-dim); padding-top: 3px; }
 .poin strong { display: block; font-size: 15px; }
 .poin span { font-size: 14px; color: var(--ink-dim); }
 
@@ -261,108 +223,135 @@ a { color: var(--accent-ink); text-underline-offset: 3px; }
 
 @media (min-width: 860px) {
   .masuk-grid { grid-template-columns: 1.05fr 0.95fr; gap: 56px; align-items: center; padding-top: 40px; }
-  .dekor svg { right: -6%; width: 520px; }
 }
 
-/* ============ TOPBAR + TAB ============ */
+/* ============ TOPBAR ============ */
 
 .topbar {
   border-bottom: 1px solid var(--line);
-  background: color-mix(in srgb, var(--paper) 88%, transparent);
-  backdrop-filter: saturate(1.4) blur(8px);
-  position: sticky;
-  top: 0;
-  z-index: 5;
+  background: var(--paper);
 }
-.topbar-isi { display: flex; align-items: center; justify-content: space-between; padding-top: 13px; padding-bottom: 11px; }
-.topbar-aksi { display: flex; align-items: center; gap: 8px; }
-.wordmark { font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em; color: var(--ink); }
+.topbar-isi { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 13px; padding-bottom: 13px; }
+.topbar-aksi { display: flex; align-items: center; gap: 8px; min-width: 0; }
 
-.tabs { display: flex; gap: 2px; }
-.tab {
-  position: relative;
-  font-family: var(--sans);
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--ink-dim);
-  background: transparent;
-  border: none;
-  padding: 10px 14px 11px;
-  cursor: pointer;
-  transition: color 0.18s var(--ease);
-}
-.tab::after {
-  content: "";
-  position: absolute;
-  left: 12px; right: 12px; bottom: 0;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--accent);
-  transform: scaleX(0);
-  transform-origin: center;
-  transition: transform 0.24s var(--ease);
-}
-.tab:hover { color: var(--ink); }
-.tab[aria-selected="true"] { color: var(--accent-ink); }
-.tab[aria-selected="true"]::after { transform: scaleX(1); }
+.merek { display: flex; align-items: center; gap: 9px; text-decoration: none; color: var(--ink); }
+.merek-tanda { width: 34px; height: 14px; fill: var(--ink); flex: none; }
+.wordmark { font-size: 15px; font-weight: 700; letter-spacing: -0.01em; color: var(--ink); }
 
-.utama { display: flex; flex-direction: column; padding-top: 18px; padding-bottom: 40px; }
-.tampilan { display: flex; flex-direction: column; gap: 14px; }
-.tampilan[hidden] { display: none; }
-.tampilan > * { animation: masukHalus 0.42s var(--ease) both; }
-.tampilan > *:nth-child(1) { animation-delay: 0.02s; }
-.tampilan > *:nth-child(2) { animation-delay: 0.07s; }
-.tampilan > *:nth-child(3) { animation-delay: 0.12s; }
-.tampilan > *:nth-child(4) { animation-delay: 0.17s; }
+.cari {
+  display: flex; flex-direction: row; align-items: center; gap: 7px;
+  background: var(--sunken); border: 1px solid transparent;
+  border-radius: 999px; padding: 7px 14px; min-width: 0;
+}
+.cari:focus-within { border-color: var(--line); background: var(--raised); }
+.cari-ikon { width: 16px; height: 16px; color: var(--ink-dim); flex: none; }
+.cari input {
+  border: none; background: none; outline: none; min-width: 0; width: 150px;
+  font-family: var(--sans); font-size: 13.5px; color: var(--ink);
+}
+.cari input::placeholder { color: var(--ink-dim); }
+.cari input::-webkit-search-cancel-button { -webkit-appearance: none; }
+
+@media (max-width: 620px) {
+  .topbar-isi { gap: 8px; }
+  .topbar-aksi { gap: 6px; }
+  .wordmark { display: none; }
+  .cari { padding: 8px; }
+  .cari input { width: 0; padding: 0; }
+  .cari:focus-within { padding: 7px 12px; }
+  .cari:focus-within input { width: 40vw; max-width: 180px; }
+  .topbar-aksi .ikon-tombol { width: 38px; height: 38px; }
+  .topbar-aksi .tombol.kecil { padding: 7px 10px; }
+}
+
+/* ============ TATA LETAK: SATU HALAMAN DASHBOARD ============ */
+
+.utama { display: flex; flex-direction: column; padding-bottom: 48px; }
+
+.sapaan-blok { margin: 24px 0 6px; }
+.sapaan { font-size: clamp(24px, 4vw, 32px); font-weight: 700; letter-spacing: -0.02em; }
+.sapaan-sub { margin: 3px 0 0; font-size: 14px; color: var(--ink-dim); }
+
+.dasbor-grid { display: grid; gap: 16px; margin-top: 8px; }
+.kolom { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+@media (min-width: 940px) {
+  .dasbor-grid { grid-template-columns: 1.5fr 1fr; align-items: start; gap: 18px; }
+  .kolom { gap: 18px; }
+  .lebar-penuh { grid-column: 1 / -1; }
+}
+
+.dasbor-grid > * { animation: masukHalus 0.42s var(--ease) both; }
 
 /* ============ KARTU ============ */
 
 .kartu {
   background: var(--raised);
   border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 18px;
+  border-radius: var(--radius-kartu);
+  padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 14px;
-  transition: box-shadow 0.25s var(--ease), transform 0.25s var(--ease), border-color 0.25s var(--ease);
 }
-.utama .kartu:hover { box-shadow: var(--bayang); border-color: var(--line-soft); }
+.kartu-kepala { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.kartu-kepala h2 { font-size: 15px; }
+.tautan-tombol {
+  background: none; border: none; padding: 0; cursor: pointer;
+  font-family: inherit; font-size: 13px; font-weight: 600; color: var(--ink-dim);
+}
+.tautan-tombol:hover { color: var(--ink); }
 
-/* ---- Hero ---- */
-.hero-kartu { gap: 8px; }
+/* ---- Kartu rak (hero): GELAP di kedua tema, gaya kartu kredit di Keuangan.
+   Nilai di-hardcode karena kartunya gelap di terang maupun gelap. Diukur di
+   ground #18181B / #22222A: ink 17:1, dim #A1A1AA 6,9:1. Ikon rak putih. */
+.rak-kartu {
+  gap: 8px;
+  padding: 24px 26px;
+  background: #18181B;
+  border-color: #2C2C31;
+  color: #FAFAFA;
+  box-shadow: 0 12px 34px -14px rgba(24, 24, 27, .38);
+}
+:root[data-theme="dark"] .rak-kartu {
+  background: #22222A; border-color: #35353E;
+  box-shadow: 0 12px 34px -14px rgba(0, 0, 0, .6);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .rak-kartu {
+    background: #22222A; border-color: #35353E;
+    box-shadow: 0 12px 34px -14px rgba(0, 0, 0, .6);
+  }
+}
+.rak-kartu .k { color: #A1A1AA; }
 .hero-kepala { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
-.periode { font-family: var(--mono); font-size: 11.5px; color: var(--ink-dim); }
+.periode { font-family: var(--mono); font-size: 11.5px; color: #A1A1AA; }
 
-/* Angka utama: satu per tampilan, minimal 48px, huruf sans yang sama dengan
-   sisanya. Sengaja TIDAK memakai tabular-nums -- angka besar yang berdiri
-   sendiri terlihat renggang kalau tiap digit dipaksa selebar nol. */
 .hero {
-  font-family: var(--sans);
-  font-size: clamp(44px, 13vw, 54px);
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  line-height: 1.05;
+  font-family: var(--mono);
+  font-size: clamp(34px, 7vw, 44px);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  color: #FAFAFA;
 }
-.hero.negatif { color: var(--keluar-teks); }
-.hero-catatan { font-size: 13px; }
+.hero-catatan { font-size: 12.5px; color: #A1A1AA; }
 
 .arus {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  border-top: 1px solid var(--line);
-  padding-top: 13px;
-  margin-top: 4px;
+  display: flex;
+  gap: 40px;
+  border-top: 1px solid rgba(255, 255, 255, .12);
+  padding-top: 16px;
+  margin-top: 12px;
 }
-.arus-item { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: 7px; align-items: center; }
-.arus-item .k { grid-column: 2; }
-.arus-item strong { grid-column: 2; font-family: var(--mono); font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums; }
-.titik { grid-row: 1 / 3; width: 9px; height: 9px; border-radius: 50%; }
-.titik.sedang { background: var(--masuk); }
-/* Antrean digambar sebagai cincin kosong, bukan titik penuh: belum dimulai,
-   jadi belum "berisi". Bedanya juga terbaca tanpa bergantung warna. */
-.titik.antre { background: transparent; box-shadow: inset 0 0 0 2px var(--keluar); }
+.arus-item { display: flex; flex-direction: column; gap: 3px; }
+.arus-item .k { display: flex; align-items: center; gap: 6px; }
+.arus-item strong { font-family: var(--mono); font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums; color: #FAFAFA; }
+.titik { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.titik.sedang { background: #4590CE; }
+/* Antrean = cincin kosong, bukan titik penuh: belum dimulai. Beda tanpa warna. */
+.titik.antre { background: transparent; box-shadow: inset 0 0 0 2px #CB7A36; }
 
 .angka { font-family: var(--mono); font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums; }
 .angka.masuk { color: var(--masuk); }
@@ -375,6 +364,24 @@ a { color: var(--accent-ink); text-underline-offset: 3px; }
   transition: color 0.15s var(--ease), background 0.15s var(--ease);
 }
 .tutup:hover { color: var(--ink); background: var(--line-soft); }
+
+/* ---- Sorotan (KPI kecil), gaya sama seperti Keuangan ---- */
+.sorotan-stat { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.sorotan-stat li { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; padding: 12px 0; align-items: baseline; }
+.sorotan-stat li + li { border-top: 1px solid var(--line-soft); }
+.sorotan-label { font-size: 13px; color: var(--ink-dim); }
+.sorotan-nilai { font-family: var(--mono); font-size: 15px; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--ink); }
+.sorotan-catatan { grid-column: 1 / -1; font-size: 12px; color: var(--ink-dim); margin-top: 2px; }
+
+/* ---- Seksi Rincian lengkap (dibuka lewat "Lihat semua") ---- */
+.detail-blok { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--line); }
+.detail-blok[hidden] { display: none; }
+.detail-kepala { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+.detail-grid { display: grid; gap: 16px; }
+@media (min-width: 940px) {
+  .detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+  .detail-grid > .lebar-penuh { grid-column: 1 / -1; }
+}
 
 /* ============ FORM ============ */
 
@@ -439,46 +446,48 @@ input::placeholder { color: var(--ink-dim); }
 
 /* ============ TOMBOL ============ */
 
+/* Hierarki: sekunder = netral tenang (putih, garis tipis), primer = hitam
+   solid. Disamakan dengan Keuangan. */
 .tombol {
   font-family: var(--sans);
   font-size: 14px;
   font-weight: 600;
-  color: var(--accent-ink);
-  background: transparent;
-  border: 1px solid var(--accent);
-  border-radius: 8px;
-  padding: 12px 16px;
-  min-height: 46px;
+  color: var(--ink);
+  background: var(--raised);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 11px 15px;
+  min-height: 44px;
   cursor: pointer;
-  transition: background 0.2s var(--ease), color 0.2s var(--ease),
-              box-shadow 0.2s var(--ease), transform 0.12s var(--ease);
+  transition: background 0.2s var(--ease), border-color 0.2s var(--ease), transform 0.12s var(--ease);
 }
-.tombol:hover { background: var(--accent); color: var(--paper); box-shadow: var(--bayang); }
-.tombol:active { transform: translateY(1px); box-shadow: none; }
-.tombol.utama { background: var(--accent); border-color: var(--accent); color: var(--paper); }
-.tombol.utama:hover { background: var(--accent-ink); border-color: var(--accent-ink); box-shadow: var(--bayang-naik); }
+.tombol:hover { background: var(--accent-soft); }
+.tombol:active { transform: translateY(1px); }
+.tombol.utama { background: var(--accent); border-color: var(--accent); color: var(--raised); }
+.tombol.utama:hover { background: var(--accent); opacity: 0.9; }
 .tombol.lebar { width: 100%; }
 .tombol.kecil { padding: 7px 12px; min-height: 0; font-size: 13px; width: fit-content; }
-.tombol[disabled] { opacity: 0.55; cursor: default; transform: none; box-shadow: none; }
+.tombol.bahaya { color: var(--keluar-teks); border-color: var(--line); }
+.tombol.bahaya:hover { background: color-mix(in srgb, var(--keluar) 12%, var(--raised)); }
+.tombol[disabled] { opacity: 0.5; cursor: default; transform: none; }
 .tombol-baris { display: grid; grid-template-columns: 1fr auto; gap: 9px; }
 
 .ikon-tombol {
-  background: transparent;
+  background: var(--raised);
   border: 1px solid var(--line);
-  border-radius: 8px;
-  color: var(--ink-dim);
+  border-radius: 10px;
+  color: var(--ink);
   font-size: 15px;
   line-height: 1;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: border-color 0.18s var(--ease), color 0.18s var(--ease),
-              background 0.18s var(--ease), transform 0.12s var(--ease);
+  transition: background 0.18s var(--ease), border-color 0.18s var(--ease), transform 0.12s var(--ease);
 }
-.ikon-tombol:hover { border-color: var(--accent); color: var(--accent-ink); background: var(--raised); }
+.ikon-tombol:hover { background: var(--accent-soft); }
 .ikon-tombol:active { transform: scale(0.94); }
 .ikon-tombol[disabled] { opacity: 0.3; cursor: default; transform: none; }
 
@@ -507,9 +516,16 @@ input::placeholder { color: var(--ink-dim); }
 .grafik svg { display: block; max-width: 100%; overflow: visible; }
 .grafik .nilai { font-family: var(--mono); font-size: 11px; fill: var(--ink-dim); font-variant-numeric: tabular-nums; }
 .grafik .sumbu { font-family: var(--mono); font-size: 10.5px; fill: var(--ink-dim); }
-.grafik .garis-grid { stroke: var(--grid); stroke-width: 1; }
-.grafik .batang { transition: opacity 0.15s var(--ease); }
-.grafik .batang:hover { opacity: 0.75; }
+.grafik .garis-grid { stroke: var(--line-soft); stroke-width: 1; }
+.grafik .batang { fill: var(--ink-dim); transition: opacity 0.15s var(--ease); }
+.grafik .batang:hover { opacity: 0.7; }
+
+/* ---- Grafik garis (Selesai per bulan), gaya sama seperti "Reports" Keuangan ---- */
+.grafik-garis svg { display: block; width: 100%; overflow: visible; }
+.garis-tren { stroke: var(--ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.garis-titik { fill: var(--ink); }
+.garis-bubble { fill: var(--accent); }
+.garis-bubble-teks { fill: var(--raised); font-family: var(--mono); font-size: 11px; font-weight: 500; }
 
 /* Batang horizontal dari HTML: label dan nilai satu baris, batang di bawahnya.
    Bentuk ini muat di layar sempit tanpa memotong nama kategori. */
@@ -696,9 +712,8 @@ input::placeholder { color: var(--ink-dim); }
 
 .ikon-kosong { width: 44px; height: 44px; fill: var(--line); margin-bottom: 2px; }
 
-/* ============ RAK (hero tab Sekarang) ============ */
+/* ============ RAK (di dalam kartu hero gelap) ============ */
 
-.rak-kartu { gap: 12px; }
 .rak-utama { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
 .rak-utama .hero { line-height: 1; }
 
@@ -710,33 +725,19 @@ input::placeholder { color: var(--ink-dim); }
 .rak-slot {
   display: flex; flex-direction: column; align-items: center; gap: 1px;
   padding: 9px 2px 7px;
-  border: 1px solid var(--line-soft);
+  border: 1px solid rgba(255, 255, 255, .1);
   border-radius: 10px;
-  background: var(--paper);
+  background: rgba(255, 255, 255, .03);
   transition: border-color 0.2s var(--ease), opacity 0.2s var(--ease);
 }
-.rak-slot b { font-family: var(--mono); font-size: 15px; font-weight: 500; }
-.rak-slot span { font-size: 10.5px; color: var(--ink-dim); }
-.rak-ikon { width: 24px; height: 24px; color: var(--ink-dim); margin-bottom: 2px; }
+.rak-slot b { font-family: var(--mono); font-size: 15px; font-weight: 500; color: #FAFAFA; }
+.rak-slot span { font-size: 10.5px; color: #A1A1AA; }
+.rak-ikon { width: 24px; height: 24px; color: #A1A1AA; margin-bottom: 2px; }
 
-/* Jenis yang belum ada isinya bulan ini tampil redup. Bentuk raknya sendiri
-   jadi bercerita: sebulan penuh film, atau sebulan tanpa buku sama sekali. */
-.rak-slot.rak-kosong { opacity: 0.42; }
-.rak-slot.terisi { border-color: var(--accent); }
-.rak-slot.terisi .rak-ikon { color: var(--accent-ink); }
-
-/* ============ TATA LETAK DUA KOLOM ============ */
-
-.sekarang-grid { display: grid; grid-template-columns: 1fr; gap: 14px; align-items: start; }
-.kolom-kiri, .kolom-kanan { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
-
-@media (min-width: 900px) {
-  .sekarang-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); }
-  .rak-kartu { grid-column: 1 / -1; }
-  /* Kolom kiri (formulir) menempel saat menggulir daftar panjang di kanan --
-     mencatat judul baru tidak boleh butuh scroll ke atas dulu. */
-  .kolom-kiri { position: sticky; top: 108px; }
-}
+/* Jenis yang belum ada isinya bulan ini tampil redup -- bentuk raknya bercerita. */
+.rak-slot.rak-kosong { opacity: 0.4; }
+.rak-slot.terisi { border-color: rgba(255, 255, 255, .35); }
+.rak-slot.terisi .rak-ikon { color: #FAFAFA; }
 
 /* ============ PEMILIH JENIS ============ */
 
@@ -844,140 +845,6 @@ input::placeholder { color: var(--ink-dim); }
 
 .bintang-label { font-size: 13px; color: var(--ink-dim); min-height: 19px; font-style: italic; }
 
-/* ============ HALAMAN MASUK: PITA + SILUET ============ */
-
-/* Pita seluloid yang bergeser pelan di belakang siluet. Dibuat dari
-   repeating-linear-gradient, bukan gambar -- nol permintaan jaringan. */
-.pita {
-  position: absolute;
-  left: -10%; right: -10%;
-  top: 62%;
-  height: 74px;
-  transform: rotate(-7deg);
-  overflow: hidden;
-  opacity: 0.5;
-  mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
-}
-.pita-jalur {
-  width: 200%; height: 100%;
-  background:
-    repeating-linear-gradient(90deg, var(--sunken) 0 34px, transparent 34px 44px),
-    linear-gradient(var(--line-soft), var(--line-soft));
-  background-size: 44px 14px, 100% 100%;
-  background-position: 0 8px, 0 0;
-  background-repeat: repeat-x, no-repeat;
-  border-block: 1px solid var(--line);
-  animation: geserPita 14s linear infinite;
-}
-@keyframes geserPita { to { transform: translateX(-44px); } }
-
-.dekor-siluet {
-  position: absolute;
-  right: -14%;
-  top: 50%;
-  transform: translateY(-50%);
-  width: min(560px, 92vw);
-  height: auto;
-  fill: var(--accent);
-}
-.dekor-siluet .s-film   { opacity: .17; animation: apung 11s ease-in-out infinite; }
-.dekor-siluet .s-game   { opacity: .15; animation: apung 13s ease-in-out infinite reverse; }
-.dekor-siluet .s-buku   { opacity: .16; animation: apung 9.5s ease-in-out infinite; animation-delay: -3s; }
-.dekor-siluet .s-serial { opacity: .13; animation: apung 15s ease-in-out infinite reverse; animation-delay: -6s; }
-
-.dekor-siluet .s-bintang {
-  fill: var(--keluar);
-  font-size: 20px;
-  opacity: .3;
-  animation: kelip 4.6s ease-in-out infinite;
-}
-.dekor-siluet .b2 { animation-delay: -1.6s; font-size: 15px; }
-.dekor-siluet .b3 { animation-delay: -3.1s; font-size: 25px; }
-
-@keyframes kelip {
-  0%, 100% { opacity: .12; }
-  50%      { opacity: .42; }
-}
-
-/* ============ LATAR HIDUP DI HALAMAN APLIKASI ============
-
-   z-index -1 menempatkannya di bawah seluruh isi tapi tetap di atas warna
-   latar body, jadi kartunya yang buram menutupinya sepenuhnya. Hiasannya
-   hanya muncul di sela antar kartu dan di margin kiri-kanan layar lebar.
-
-   position: fixed dipakai supaya latarnya diam saat halaman digulir --
-   isinya yang bergerak melewatinya. Ini juga menghindari perhitungan tinggi
-   dokumen yang berubah-ubah setiap daftar bertambah. */
-
-.latar-dekor {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;   /* tidak boleh mencuri ketukan dari tombol mana pun */
-  overflow: hidden;
-}
-
-.latar-svg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  fill: var(--accent);
-}
-
-/* Opasitas sengaja sangat rendah. Diukur: teks yang duduk langsung di atas
-   latar (kaki halaman, navigasi bulan) tetap di atas ambang kontras dengan
-   nilai-nilai ini. Jangan dinaikkan tanpa mengukur ulang. */
-.latar-dekor .l-film   { opacity: .055; animation: apung 17s ease-in-out infinite; }
-.latar-dekor .l-buku   { opacity: .05;  animation: apung 21s ease-in-out infinite reverse; }
-.latar-dekor .l-game   { opacity: .045; animation: apung 19s ease-in-out infinite; animation-delay: -5s; }
-.latar-dekor .l-serial { opacity: .04;  animation: apung 23s ease-in-out infinite reverse; animation-delay: -9s; }
-
-.latar-dekor .l-bintang {
-  fill: var(--keluar);
-  font-size: 26px;
-  opacity: .07;
-  animation: kelip 6.5s ease-in-out infinite;
-}
-.latar-dekor .lb2 { animation-delay: -2.2s; font-size: 18px; }
-.latar-dekor .lb3 { animation-delay: -4.1s; font-size: 33px; }
-.latar-dekor .lb4 { animation-delay: -5.6s; font-size: 21px; }
-
-.latar-pita {
-  position: absolute;
-  left: -12%; right: -12%;
-  top: 46%;
-  height: 62px;
-  transform: rotate(-4deg);
-  overflow: hidden;
-  opacity: 0.28;
-  mask-image: linear-gradient(90deg, transparent, #000 22%, #000 78%, transparent);
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 22%, #000 78%, transparent);
-}
-.latar-pita-jalur {
-  width: 200%; height: 100%;
-  background:
-    repeating-linear-gradient(90deg, var(--sunken) 0 30px, transparent 30px 40px),
-    linear-gradient(var(--line-soft), var(--line-soft));
-  background-size: 40px 12px, 100% 100%;
-  background-position: 0 8px, 0 0;
-  background-repeat: repeat-x, no-repeat;
-  border-block: 1px solid var(--line);
-  animation: geserPita 18s linear infinite;
-}
-
-/* Di layar sempit hampir seluruh lebar tertutup kartu, dan sisa celahnya
-   terlalu sedikit untuk memuat bentuk yang terbaca. Pita dimatikan supaya
-   tidak jadi garis nyasar di belakang teks. */
-@media (max-width: 700px) {
-  .latar-pita { display: none; }
-  .latar-dekor .l-film,
-  .latar-dekor .l-buku,
-  .latar-dekor .l-game,
-  .latar-dekor .l-serial { opacity: .035; }
-}
-
 /* ============ ALUR TIGA STATUS ============ */
 
 /* Inti aplikasinya dalam satu gambar: catatan di sini punya siklus hidup.
@@ -1061,7 +928,7 @@ input::placeholder { color: var(--ink-dim); }
   html.memuat body { opacity: 1 !important; }
 
   /* Seluruh aplikasi disembunyikan -- yang dicetak cuma lembarnya. */
-  .topbar, .latar-dekor, .spanduk-demo, .kaki, .tampilan, .dekor,
+  .topbar, .spanduk-demo, .kaki, .detail-blok, .sapaan-blok,
   .dialog, .masuk-grid, .masuk-kaki, .tema-lepas { display: none !important; }
 
   .cetak { display: block !important; }

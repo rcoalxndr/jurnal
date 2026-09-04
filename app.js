@@ -1,7 +1,7 @@
 import {
   db, el, tampilkanPesan, pasangTombolTema, selesaiMemuat, geraknyaDikurangi,
   pasangSprite, ikon,
-} from "./bersama.js?v=5";
+} from "./bersama.js?v=6";
 
 /* Siluet disuntikkan sebelum apa pun digambar, supaya <use> di HTML punya
    simbol untuk ditunjuk sejak frame pertama. */
@@ -73,6 +73,7 @@ let statusAwal = "sedang";
 let jenisTerpilih = "film";
 let bulanRiwayat = kunciBulanIni();
 let jenisTersaring = "semua";
+let cariKata = "";
 let sudahSiap = false;
 let modeDemo = false;
 let sedangDiubah = null;   /* baris yang terbuka di dialog */
@@ -113,19 +114,36 @@ function siapkanUI() {
 
   el("labelPeriode").textContent = labelBulan(kunciBulanIni());
 
-  document.querySelectorAll(".tab").forEach((t) => {
-    t.addEventListener("click", () => pindahTampilan(t.dataset.view));
-  });
-
   pasangPilihan(el("formTambah"), "status-tombol", (v) => { statusAwal = v; gambarPetunjukTambah(); });
   pasangPilihan(el("jenisPilih"), "jenis-tombol", (v) => { jenisTerpilih = v; gambarPetunjukTambah(); });
   gambarPetunjukTambah();
 
   el("formTambah").addEventListener("submit", tambahItem);
 
-  el("bulanSebelum").addEventListener("click", () => { bulanRiwayat = geserBulan(bulanRiwayat, -1); gambarRiwayat(); });
-  el("bulanSesudah").addEventListener("click", () => { bulanRiwayat = geserBulan(bulanRiwayat, 1); gambarRiwayat(); });
-  pasangPilihan(el("saringJenis"), "chip", (v) => { jenisTersaring = v; gambarRiwayat(); });
+  /* Pencarian judul menyaring keempat daftar sekaligus. Kolom kosong = tanpa
+     saringan. */
+  el("cariJudul").addEventListener("input", (e) => {
+    cariKata = e.target.value.trim().toLowerCase();
+    gambarDasbor();
+    if (!el("viewDetail").hidden) gambarDetail();
+  });
+
+  /* "Lihat semua" membuka/menutup satu blok rincian di bawah dashboard --
+     menggantikan tab Riwayat dan Tren yang lama. */
+  el("tombolDetail").addEventListener("click", () => {
+    const buka = el("viewDetail").hidden;
+    el("viewDetail").hidden = !buka;
+    el("tombolDetail").setAttribute("aria-expanded", String(buka));
+    el("tombolDetail").textContent = buka ? "Tutup rincian" : "Lihat semua";
+    if (buka) {
+      gambarDetail();
+      el("viewDetail").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  });
+
+  el("bulanSebelum").addEventListener("click", () => { bulanRiwayat = geserBulan(bulanRiwayat, -1); gambarDetail(); });
+  el("bulanSesudah").addEventListener("click", () => { bulanRiwayat = geserBulan(bulanRiwayat, 1); gambarDetail(); });
+  pasangPilihan(el("saringJenis"), "chip", (v) => { jenisTersaring = v; gambarDetail(); });
 
   /* Lembar cetak disusun tepat sebelum dialog cetak dibuka, supaya selalu
      memuat bulan yang sedang dipilih. */
@@ -139,20 +157,6 @@ function siapkanUI() {
   siapkanDialog();
 }
 
-function pindahTampilan(nama) {
-  document.querySelectorAll(".tab").forEach((t) => {
-    t.setAttribute("aria-selected", String(t.dataset.view === nama));
-  });
-  /* Menyembunyikan lalu menampilkan kembali membuat elemen keluar-masuk dari
-     tata letak, dan itu sendiri yang memicu ulang animasi masuknya. */
-  for (const [id, cocok] of [["viewSekarang", "sekarang"], ["viewRiwayat", "riwayat"], ["viewTren", "tren"]]) {
-    el(id).hidden = nama !== cocok;
-  }
-  if (nama === "riwayat") gambarRiwayat();
-  if (nama === "tren") gambarTren();
-  window.scrollTo({ top: 0, behavior: "instant" });
-}
-
 /* Kalimat di bawah tombol Simpan berubah mengikuti pilihan, supaya orang tahu
    persis apa yang akan terjadi sebelum menekannya. Ini menggantikan penjelasan
    panjang yang sama untuk semua keadaan. */
@@ -161,7 +165,7 @@ function gambarPetunjukTambah() {
   const teks = {
     mau: `Masuk antrean. Tanggal mulai dikosongkan sampai kamu benar-benar mulai.`,
     sedang: `Ditandai mulai hari ini, dan akan mengingatkanmu kalau ${jenis} ini diam terlalu lama.`,
-    selesai: `Langsung ditutup hari ini. Nilainya bisa diketuk belakangan di tab Riwayat.`,
+    selesai: `Langsung ditutup hari ini. Nilainya bisa diketuk belakangan lewat tombol Ubah.`,
   };
   el("petunjukTambah").textContent = teks[statusAwal];
 }
@@ -492,66 +496,59 @@ function batangHorizontal(wadah, data, { format = judulan } = {}) {
   wadah.append(daftar);
 }
 
-/* Kolom per bulan: tren waktu, satu seri, satu hue. Digambar dengan koordinat
-   piksel sungguhan supaya teks sumbu tidak ikut diregangkan -- itulah sebabnya
-   lebar wadah diukur dulu, dan grafik digambar ulang saat jendela berubah. */
-function kolomBulanan(wadah, data) {
+/* Grafik garis: judul selesai per bulan (6 titik terakhir yang berdata).
+   Koordinat piksel sungguhan supaya <text> sumbu tidak melar -- itulah sebabnya
+   lebar wadah diukur dulu dan grafik digambar ulang saat jendela berubah.
+   Titik terakhir ditebalkan + gelembung nilainya, gaya "Reports" di Keuangan.
+   Garis dilembutkan dengan bezier lewat titik tengah tiap segmen. */
+function garisBulanan(wadah, data) {
   wadah.innerHTML = "";
-  if (!data.length) return;
+  if (data.length < 2) return;
 
-  const W = Math.max(wadah.clientWidth || 300, 200);
-  const H = 190, padBawah = 24, padAtas = 20;
-  const maks = Math.max(...data.map((d) => d[1]), 1);
-  const slot = W / data.length;
-  const tebal = Math.min(slot * 0.46, 24);   /* mark spec: batang tipis, <=24px */
-  const plotTinggi = H - padBawah - padAtas;
-  const iMaks = data.reduce((best, d, i) => (d[1] > data[best][1] ? i : best), 0);
+  const W = Math.max(wadah.clientWidth || 320, 240);
+  const H = 168, padX = 8, padAtas = 22, padBawah = 26;
+  const nilai = data.map(([, n]) => n);
+  const maks = Math.max(...nilai, 1);
+  const plotT = H - padAtas - padBawah;
+  const lebarPlot = W - padX * 2;
+
+  const titik = data.map(([, n], i) => [
+    padX + (i / (data.length - 1)) * lebarPlot,
+    padAtas + plotT - (n / maks) * plotT,
+  ]);
 
   const svg = buat("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: "img" });
-  const t = buat("title");
-  t.textContent = "Judul selesai per bulan";
+  const judul = buat("title");
+  judul.textContent = "Judul selesai per bulan";
+  svg.append(judul);
+
+  /* Baseline hairline. */
+  svg.append(buat("line", { x1: 0, y1: padAtas + plotT, x2: W, y2: padAtas + plotT, class: "garis-grid" }));
+
+  let d = `M ${titik[0][0].toFixed(1)} ${titik[0][1].toFixed(1)}`;
+  for (let i = 1; i < titik.length; i++) {
+    const [x0, y0] = titik[i - 1], [x1, y1] = titik[i];
+    const mx = (x0 + x1) / 2;
+    d += ` Q ${x0.toFixed(1)} ${y0.toFixed(1)} ${mx.toFixed(1)} ${((y0 + y1) / 2).toFixed(1)}`;
+    d += ` T ${x1.toFixed(1)} ${y1.toFixed(1)}`;
+  }
+  svg.append(buat("path", { d, class: "garis-tren", fill: "none" }));
+
+  /* Titik terakhir ditebalkan + label nilainya di dalam gelembung. */
+  const [xa, ya] = titik[titik.length - 1];
+  svg.append(buat("circle", { cx: xa, cy: ya, r: 3.5, class: "garis-titik" }));
+  const labelNilai = String(nilai[nilai.length - 1]);
+  const lebarBubble = labelNilai.length * 7 + 16;
+  const bx = Math.min(Math.max(xa - lebarBubble / 2, 2), W - lebarBubble - 2);
+  const by = Math.max(ya - 30, 2);
+  svg.append(buat("rect", { x: bx, y: by, width: lebarBubble, height: 20, rx: 6, class: "garis-bubble" }));
+  const t = buat("text", { x: bx + lebarBubble / 2, y: by + 13.5, "text-anchor": "middle", class: "garis-bubble-teks" });
+  t.textContent = labelNilai;
   svg.append(t);
 
-  /* Garis dasar hairline, resesif. */
-  svg.append(buat("line", { x1: 0, y1: H - padBawah, x2: W, y2: H - padBawah, class: "garis-grid" }));
-
-  data.forEach(([kunci, nilai], i) => {
-    const tinggiBatang = Math.max((nilai / maks) * plotTinggi, nilai > 0 ? 2 : 0);
-    const x = i * slot + (slot - tebal) / 2;
-    const y = H - padBawah - tinggiBatang;
-
-    const batang = buat("rect", {
-      x, width: tebal, rx: 3, fill: "var(--keluar)", class: "batang",
-      y: geraknyaDikurangi() ? y : H - padBawah,
-      height: geraknyaDikurangi() ? tinggiBatang : 0,
-    });
-    const tip = buat("title");
-    tip.textContent = `${labelBulan(kunci)}: ${judulan(nilai)}`;
-    batang.append(tip);
-    svg.append(batang);
-
-    /* Kolom tumbuh dari garis dasar, satu per satu. Sama seperti batang
-       horizontal: ada pengaman waktu supaya tingginya tetap benar walau
-       requestAnimationFrame tidak pernah berjalan. */
-    if (!geraknyaDikurangi()) {
-      const setel = () => {
-        batang.setAttribute("y", y);
-        batang.setAttribute("height", tinggiBatang);
-      };
-      batang.style.transition = `y 420ms cubic-bezier(.22,.61,.36,1) ${i * 60}ms, height 420ms cubic-bezier(.22,.61,.36,1) ${i * 60}ms`;
-      requestAnimationFrame(() => requestAnimationFrame(setel));
-      setTimeout(setel, 600 + i * 60);
-    }
-
-    /* Hanya kolom tertinggi yang dilabeli. Angka di setiap kolom jadi
-       kebisingan dan justru tidak terbaca. */
-    if (i === iMaks && nilai > 0) {
-      const lab = buat("text", { x: x + tebal / 2, y: y - 7, class: "nilai", "text-anchor": "middle" });
-      lab.textContent = String(nilai);
-      svg.append(lab);
-    }
-
-    const bln = buat("text", { x: x + tebal / 2, y: H - 8, class: "sumbu", "text-anchor": "middle" });
+  /* Label bulan di sumbu X. */
+  data.forEach(([kunci], i) => {
+    const bln = buat("text", { x: titik[i][0], y: H - 8, "text-anchor": "middle", class: "sumbu" });
     bln.textContent = NAMA_BULAN[Number(kunci.slice(5)) - 1].slice(0, 3);
     svg.append(bln);
   });
@@ -559,10 +556,21 @@ function kolomBulanan(wadah, data) {
   wadah.append(svg);
 }
 
+/* Dipakai oleh dashboard dan oleh listener resize: hanya grafik garis yang
+   perlu digambar ulang saat lebar berubah (batang horizontal ikut lebar
+   sendiri lewat persentase). */
+function gambarTrenGaris() {
+  if (!sudahSiap) return;
+  const bulan = bulanBerdata().slice(0, 6).reverse();
+  const data = bulan.map((k) => [k, berakhirBulan(k).filter((r) => r.status === "selesai").length]);
+  el("trenKosong").hidden = data.length > 1;
+  garisBulanan(el("grafikTren"), data.length > 1 ? data : []);
+}
+
 let jedaUkur;
 window.addEventListener("resize", () => {
   clearTimeout(jedaUkur);
-  jedaUkur = setTimeout(() => { if (!el("viewTren").hidden) gambarTren(); }, 150);
+  jedaUkur = setTimeout(gambarTrenGaris, 150);
 });
 
 /* ---------------- Angka berjalan ---------------- */
@@ -600,15 +608,24 @@ function angkaBerjalan(node, target) {
 
 function gambarSemua() {
   if (!sudahSiap) return;
-  gambarSekarang();
-  gambarRiwayat();
-  gambarTren();
+  gambarDasbor();
+  if (!el("viewDetail").hidden) gambarDetail();
 }
 
-function gambarSekarang() {
-  const selesaiBulanIni = berakhirBulan(kunciBulanIni()).filter((r) => r.status === "selesai");
+/* Saringan pencarian judul. Kolom kosong = semua lolos. */
+const cocokCari = (r) => !cariKata || r.judul.toLowerCase().includes(cariKata);
+
+/* ---------------- Dashboard (selalu bulan berjalan) ---------------- */
+
+function gambarDasbor() {
+  const bulanIni = kunciBulanIni();
+  const selesaiBulanIni = berakhirBulan(bulanIni).filter((r) => r.status === "selesai");
   const sedang = berstatus("sedang").sort((a, b) => (a.diubah_pada < b.diubah_pada ? -1 : 1));
   const antre = berstatus("mau").sort((a, b) => (a.diubah_pada > b.diubah_pada ? -1 : 1));
+
+  el("sapaanBulan").textContent = semuaItem.length
+    ? `${labelBulan(bulanIni)} · ${judulan(selesaiBulanIni.length)} selesai bulan ini`
+    : labelBulan(bulanIni);
 
   angkaBerjalan(el("nilaiSelesai"), selesaiBulanIni.length);
   el("nilaiSedang").textContent = String(sedang.length);
@@ -653,14 +670,81 @@ function gambarSekarang() {
       (mandek ? ` · ${mandek} judul lagi mangkrak` : "");
   }
 
-  gambarItem(el("daftarSedang"), sedang, "sedang", el("sedangKosong"));
-  gambarItem(el("daftarAntre"), antre, "antre", el("antreKosong"));
+  /* Daftar "Selesai bulan ini" di dashboard dibatasi enam -- selebihnya lewat
+     "Lihat semua" di seksi rincian. */
+  const selesaiTampil = selesaiBulanIni.filter(cocokCari)
+    .sort((a, b) => (a.selesai_pada > b.selesai_pada ? -1 : 1));
+  gambarItem(el("daftarSelesai"), selesaiTampil.slice(0, 6), "riwayat", el("selesaiKosong"));
+  el("selesaiKosongTeks").textContent = cariKata
+    ? `Tidak ada judul selesai bulan ini yang cocok dengan “${cariKata}”.`
+    : "Belum ada yang selesai bulan ini. Masih ada waktu.";
+
+  gambarItem(el("daftarSedang"), sedang.filter(cocokCari), "sedang", el("sedangKosong"));
+  gambarItem(el("daftarAntre"), antre.filter(cocokCari), "antre", el("antreKosong"));
   el("sedangSub").hidden = sedang.length < 2;
   el("antreSub").hidden = antre.length === 0;
+
+  gambarTrenGaris();
+  gambarSorotan(selesaiBulanIni, sedang);
 }
 
-function gambarRiwayat() {
+/* KPI kecil untuk kartu "Sorotan bulan ini": tiga angka yang tidak terbaca
+   sekali pandang dari daftar mana pun. */
+function gambarSorotan(selesaiBulanIni, sedang) {
+  const wadah = el("sorotanBulan");
+  wadah.innerHTML = "";
+
+  const tahun = kunciBulanIni().slice(0, 4);
+  const selesaiTahunIni = semuaItem.filter(
+    (r) => r.status === "selesai" && kunciBulan(r.selesai_pada).startsWith(tahun)
+  ).length;
+  const dinilai = selesaiBulanIni.filter((r) => r.nilai);
+  const rata = rataNilai(selesaiBulanIni);
+  const mandek = sedang.filter((r) => umurHari(r.diubah_pada) >= 21).length;
+
+  const baris = [
+    {
+      label: "Rata-rata nilai",
+      nilai: rata ? rata.toFixed(1).replace(".", ",") : "—",
+      catatan: dinilai.length
+        ? `dari ${judulan(dinilai.length)} yang kamu nilai bulan ini`
+        : "belum ada judul selesai yang kamu nilai bulan ini",
+    },
+    {
+      label: "Mangkrak",
+      nilai: String(mandek),
+      catatan: mandek
+        ? "judul diam ≥ 21 hari — selesaikan atau tinggalkan"
+        : "tidak ada yang diam terlalu lama",
+    },
+    {
+      label: "Selesai tahun ini",
+      nilai: String(selesaiTahunIni),
+      catatan: `sepanjang ${tahun}`,
+    },
+  ];
+
+  for (const b of baris) {
+    const li = document.createElement("li");
+    const l = document.createElement("span");
+    l.className = "sorotan-label";
+    l.textContent = b.label;
+    const n = document.createElement("span");
+    n.className = "sorotan-nilai";
+    n.textContent = b.nilai;
+    const c = document.createElement("span");
+    c.className = "sorotan-catatan";
+    c.textContent = b.catatan;
+    li.append(l, n, c);
+    wadah.append(li);
+  }
+}
+
+/* ---------------- Rincian lengkap (bulan yang dijelajah lewat ‹ ›) ---------------- */
+
+function gambarDetail() {
   el("bulanTerpilih").textContent = labelBulan(bulanRiwayat);
+  el("detailBulan").textContent = labelBulan(bulanRiwayat);
   el("bulanSesudah").disabled = bulanRiwayat >= kunciBulanIni();
 
   const semuaBulanIni = berakhirBulan(bulanRiwayat);
@@ -689,27 +773,29 @@ function gambarRiwayat() {
 
   const tampil = semuaBulanIni
     .filter((r) => jenisTersaring === "semua" || r.jenis === jenisTersaring)
+    .filter(cocokCari)
     .sort((a, b) => (a.selesai_pada > b.selesai_pada ? -1 : 1));
 
-  /* Keadaan kosong ikut menyesuaikan saringan -- "tidak ada apa-apa" dan
-     "tidak ada buku" itu dua kabar yang berbeda, dan yang kedua punya jalan
-     keluar yang jelas. */
+  /* Keadaan kosong ikut menyesuaikan saringan dan pencarian -- "tidak ada
+     apa-apa", "tidak ada buku", dan "tidak ada yang cocok" itu tiga kabar
+     yang berbeda. */
   const nama = labelBulan(bulanRiwayat);
-  el("riwKosongTeks").textContent = jenisTersaring === "semua"
-    ? `Tidak ada yang berakhir di ${nama}. Bulan yang tenang, atau memang lupa dicatat?`
-    : `Tidak ada ${JENIS[jenisTersaring].toLowerCase()} yang berakhir di ${nama}. Coba saringan Semua.`;
+  el("riwKosongTeks").textContent = cariKata
+    ? `Tidak ada yang berakhir di ${nama} dan cocok dengan “${cariKata}”.`
+    : jenisTersaring === "semua"
+      ? `Tidak ada yang berakhir di ${nama}. Bulan yang tenang, atau memang lupa dicatat?`
+      : `Tidak ada ${JENIS[jenisTersaring].toLowerCase()} yang berakhir di ${nama}. Coba saringan Semua.`;
   el("riwKosong").querySelector("use")
     .setAttribute("href", "#ik-" + (jenisTersaring === "semua" ? "film" : jenisTersaring));
 
   gambarItem(el("daftarRiwayat"), tampil, "riwayat", el("riwKosong"));
+
+  gambarSebaran();
 }
 
-function gambarTren() {
-  const bulan = bulanBerdata().slice(0, 6).reverse();
-  const dataTren = bulan.map((k) => [k, berakhirBulan(k).filter((r) => r.status === "selesai").length]);
-  el("trenKosong").hidden = dataTren.length > 1;
-  kolomBulanan(el("grafikTren"), dataTren.length > 1 ? dataTren : []);
-
+/* Sebaran jenis & nilai + tabel bulanan: seluruh riwayat, bukan hanya bulan
+   yang sedang dipilih. */
+function gambarSebaran() {
   const selesaiSemua = berstatus("selesai");
 
   const jenis = perJenis(selesaiSemua);
@@ -736,7 +822,7 @@ function gambarTren() {
   const rataSemua = rataNilai(selesaiSemua);
   const subNilai = el("nilaiSub");
   if (nilai.length === 1) {
-    subNilai.textContent = `Semua judul kamu beri nilai sama. Kalau begitu, nilainya tidak lagi membedakan apa pun.`;
+    subNilai.textContent = "Semua judul kamu beri nilai sama. Kalau begitu, nilainya tidak lagi membedakan apa pun.";
   } else if (rataSemua >= 4.3) {
     subNilai.textContent = `Rata-rata ${rataSemua.toFixed(1).replace(".", ",")} — kamu murah hati, atau memang pintar memilih.`;
   } else if (rataSemua && rataSemua <= 2.7) {
@@ -754,23 +840,23 @@ function gambarTren() {
 
   for (const k of semuaBulan) {
     const rows = berakhirBulan(k);
-    const selesai = rows.filter((r) => r.status === "selesai");
-    const rata = rataNilai(selesai);
+    const sel = rows.filter((r) => r.status === "selesai");
+    const rt = rataNilai(sel);
 
     const tr = document.createElement("tr");
-    const sel = (teks, kelas) => {
-      const td = document.createElement("td");
-      td.textContent = teks;
-      if (kelas) td.className = kelas;
-      return td;
+    const td = (teks, kelas) => {
+      const c = document.createElement("td");
+      c.textContent = teks;
+      if (kelas) c.className = kelas;
+      return c;
     };
-    const nama = document.createElement("td");
-    nama.textContent = labelBulan(k);
+    const namaBl = document.createElement("td");
+    namaBl.textContent = labelBulan(k);
     tr.append(
-      nama,
-      sel(String(selesai.length), "t-masuk"),
-      sel(String(rows.length - selesai.length), "t-keluar"),
-      sel(rata ? rata.toFixed(1).replace(".", ",") : "—")
+      namaBl,
+      td(String(sel.length), "t-masuk"),
+      td(String(rows.length - sel.length), "t-keluar"),
+      td(rt ? rt.toFixed(1).replace(".", ",") : "—")
     );
     tbody.append(tr);
   }

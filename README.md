@@ -28,7 +28,7 @@ Artinya aplikasi ini butuh operasi `UPDATE`, penanganan status, dialog ubah, dan
 ```
 jurnal/
 ├── index.html    Halaman masuk — juga berfungsi sebagai halaman perkenalan
-├── app.html      Aplikasi: tab Sekarang, Riwayat, Tren + dialog ubah
+├── app.html      Aplikasi: satu halaman dashboard + seksi rincian + dialog ubah
 ├── style.css     Semua styling, mobile-first, dipakai kedua halaman
 ├── bersama.js    Klien Supabase, tema, siluet jenis, pembantu kedua halaman
 ├── login.js      Masuk, alihkan ke app.html
@@ -45,17 +45,15 @@ jurnal/
 
 **Tidak ada API judul otomatis.** Ambil judul dan sampul dari TMDb atau Open Library memang enak, tapi menambah dependensi jaringan, mode gagal baru, dan sebagian butuh kunci API yang tidak boleh masuk repo publik. Ditambahkan kalau mengetik judul terbukti menjengkelkan berulang kali — dan kalau iya, Open Library yang pertama dicoba, karena tidak butuh kunci sama sekali.
 
-**Jenis dibedakan lewat bentuk, bukan warna.** Empat warna kategori berarti empat pasang jarak warna baru yang belum pernah diuji keterbacaannya. Sebagai gantinya tiap jenis punya **siluet** sendiri — film, serial, buku, game — yang muncul di punggung kartu, pemilih jenis, chip saringan, label grafik, dan dekorasi halaman masuk. Bentuk terbaca oleh siapa pun termasuk yang buta warna, dan semua batang grafik tetap sewarna: yang membawa informasi adalah panjangnya.
+**Jenis dibedakan lewat bentuk, bukan warna.** Empat warna kategori berarti empat pasang jarak warna baru yang belum pernah diuji keterbacaannya. Sebagai gantinya tiap jenis punya **siluet** sendiri — film, serial, buku, game — yang muncul di punggung kartu, pemilih jenis, chip saringan, dan label grafik. Bentuk terbaca oleh siapa pun termasuk yang buta warna, dan semua batang grafik tetap sewarna: yang membawa informasi adalah panjangnya.
 
 Siluetnya ditulis **sekali** sebagai sprite di `bersama.js`, lalu disuntikkan ke kedua halaman lewat `pasangSprite()`. Bukan disalin ke dua berkas HTML — salinan yang harus disamakan manual pasti berbeda diam-diam suatu hari. Elemen `<use>` di HTML menunjuk simbol itu, dan `ikon(jenis)` membuat elemen yang sama untuk daftar yang dirender JavaScript.
 
-**Latar halaman aplikasi ikut hidup, tapi dijaga ketat.** Siluet keempat jenis melayang di `position: fixed` dengan `z-index: -1` dan `pointer-events: none`, jadi selalu di bawah isi dan tidak pernah mencuri ketukan. Opasitasnya 0,04–0,055 (0,035 di layar sempit) dan pitanya dimatikan di bawah 700px — di layar HP hampir seluruh lebar tertutup kartu, dan sisa celahnya terlalu sempit untuk memuat bentuk yang terbaca.
+**Hiasan latar dilepas.** Versi sebelumnya menaruh keempat siluet melayang di latar halaman aplikasi dan halaman masuk, dengan pita seluloid bergeser di belakangnya. Semua itu dibuang saat tampilan disamakan dengan aplikasi Keuangan (kulit dingin: ground putih, near-mono, Poppins). Hiasan yang duduk di belakang teks selalu menekan kontras — kaki halaman sempat turun ke 2,90:1 karenanya — dan tidak membawa informasi apa pun. Yang tersisa dari siluet adalah pemakaian fungsionalnya di daftar dan pemilih.
 
-Angkanya bukan selera: teks yang duduk langsung di atas latar diukur ulang setelah hiasannya ditambahkan. Kaki halaman turun dari 3,17:1 ke 2,90:1 — sudah gagal bahkan sebelum ada hiasan — jadi warnanya dinaikkan ke `--ink-dim` dan sekarang 5,2:1 pada kasus terburuk di kedua mode. **Kalau opasitas latar dinaikkan, ukur ulang.**
+**Tampilannya kini sengaja mengikuti aplikasi Keuangan.** Satu halaman dashboard: kartu hero gelap (berapa selesai bulan ini, per jenis), formulir tambah, daftar "sedang jalan" dan "antrean", grafik garis "selesai per bulan", dan KPI "sorotan bulan ini" — semua di grid dua kolom yang menumpuk di layar sempit. Riwayat lengkap (jelajah per bulan, sebaran jenis & nilai, tabel bulanan) pindah ke satu **seksi rincian** yang dibuka lewat tombol "Lihat semua", menggantikan tiga tab yang lama.
 
-**Tata letaknya sengaja tidak meniru aplikasi keuangan.** Lebar 1000px dengan dua kolom di tab Sekarang (formulir menempel di kiri, daftar berjalan di kanan), bukan satu kolom 660px. Tab Riwayat dan Tren tetap sempit karena keduanya dibaca berurutan dari atas ke bawah.
-
-**Bintang bisa diketuk langsung di daftar Riwayat.** Menilai adalah hal yang paling sering dilakukan setelah selesai, jadi tidak pantas dikubur di balik satu ketukan tambahan ke dialog. Tiap bintang juga punya artinya (`Bagus`, `Bagus banget`, …) — deretan bintang tanpa keterangan menuntut orang menghitung dan menebak maknanya sendiri.
+**Bintang bisa diketuk langsung di daftar.** Menilai adalah hal yang paling sering dilakukan setelah selesai, jadi tidak pantas dikubur di balik satu ketukan tambahan ke dialog. Tiap bintang juga punya artinya (`Bagus`, `Bagus banget`, …) — deretan bintang tanpa keterangan menuntut orang menghitung dan menebak maknanya sendiri.
 
 **`diubah_pada` diurus trigger database, bukan JavaScript.** Kalau diisi dari aplikasi, cepat atau lambat ada satu jalur update yang lupa mengisinya dan urutan daftar jadi salah tanpa ada yang sadar.
 
@@ -63,7 +61,7 @@ Angkanya bukan selera: teks yang duduk langsung di atas latar diukur ulang setel
 
 ## Unduh PDF
 
-Tombol **Unduh PDF** di tab Riwayat menyusun sebuah lembar laporan dari bulan yang sedang dipilih, lalu membuka dialog cetak. Pilih "Save as PDF" di sana. Di iPhone: Bagikan → Print → simpan ke Files.
+Tombol **PDF** di kartu "Selesai per bulan" menyusun sebuah lembar laporan dari bulan yang sedang dipilih (bulan berjalan, atau bulan yang sedang dijelajah di seksi rincian), lalu membuka dialog cetak. Pilih "Save as PDF" di sana. Di iPhone: Bagikan → Print → simpan ke Files.
 
 **Tidak memakai pustaka pembuat PDF.** jsPDF atau pdfmake berarti menarik ratusan kilobita dari CDN di **setiap** kunjungan — termasuk kunjungan yang tidak pernah mengunduh apa pun — dan menambah satu mode gagal baru kalau CDN-nya bermasalah. Jalur cetak bawaan browser sudah menghasilkan PDF yang ditata penuh oleh CSS, dengan biaya nol byte.
 
@@ -126,7 +124,7 @@ Semuanya lahir dari bug sungguhan di proyek-proyek sebelumnya, bukan dari teori.
 | Semua `input`/`select` minimal 16px | Di bawah itu iOS memperbesar layar sendiri saat field disentuh. |
 | Tombol aksi di daftar minimal 44px tinggi | `.tombol.kecil` memakai `min-height: 0`. Terukur: tanpa penegasan ulang, tombol Selesai/Tinggalkan/Ubah cuma 29px — dan justru itu yang paling sering diketuk dari HP. |
 | Blok penjaga halaman tetap di **paling akhir** `app.js` | Di tengah berkas → `ReferenceError` karena TDZ, dan itu **lolos dari `node --check`**. |
-| Batang horizontal pakai HTML biasa, bukan SVG yang diregangkan | Teks pernah melar 5,86× ke samping. SVG hanya untuk kolom bulanan, dengan koordinat piksel sungguhan. |
+| Batang horizontal pakai HTML biasa, bukan SVG yang diregangkan | Teks pernah melar 5,86× ke samping. SVG hanya untuk grafik garis bulanan, dengan koordinat piksel sungguhan — itulah kenapa lebar wadahnya diukur dulu dan grafik digambar ulang saat jendela berubah. |
 
 ## Alat bantu di Console
 

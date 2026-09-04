@@ -9,8 +9,8 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="Jurnal">
-<meta name="theme-color" content="#EDE7DA" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#1A1815" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#FAFAFA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#131316" media="(prefers-color-scheme: dark)">
 
 <!-- Pratinjau saat tautan dibagikan. Sengaja menunjuk ke demo, bukan halaman
      masuk -- yang menerima tautan tidak punya akun. -->
@@ -22,8 +22,8 @@
 <meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Karla:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="style.css?v=5">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Poppins:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="style.css?v=6">
 <script>
   try {
     var t = localStorage.getItem('theme');
@@ -37,36 +37,9 @@
   <span id="ikonTema" aria-hidden="true">☾</span>
 </button>
 
-<!-- Dekorasi: keempat siluet jenis melayang di latar, dengan pita seluloid
-     yang bergeser pelan di belakangnya. Kecepatan apungnya sengaja dibuat
-     berbeda-beda supaya tidak terlihat seperti satu blok yang bergoyang.
-     Murni hiasan, disembunyikan dari pembaca layar, dan seluruhnya berhenti
-     kalau sistem minta gerak dikurangi. -->
-<div class="dekor" aria-hidden="true">
-  <div class="pita">
-    <div class="pita-jalur"></div>
-  </div>
-  <svg class="dekor-siluet" viewBox="0 0 420 420" preserveAspectRatio="xMidYMid slice">
-    <g class="s-film">
-      <use href="#ik-film" x="248" y="42" width="112" height="112"/>
-    </g>
-    <g class="s-game">
-      <use href="#ik-game" x="286" y="248" width="96" height="96"/>
-    </g>
-    <g class="s-buku">
-      <use href="#ik-buku" x="52" y="212" width="88" height="88"/>
-    </g>
-    <g class="s-serial">
-      <use href="#ik-serial" x="132" y="66" width="72" height="72"/>
-    </g>
-    <path class="d-alir" d="M-20 306 C 90 258, 132 352, 242 296 S 400 216, 460 250"
-          fill="none" stroke="var(--accent)" stroke-width="1.5" opacity=".3"
-          stroke-linecap="round" stroke-dasharray="6 9"/>
-    <text class="s-bintang b1" x="214" y="176">★</text>
-    <text class="s-bintang b2" x="88"  y="126">★</text>
-    <text class="s-bintang b3" x="368" y="196">★</text>
-  </svg>
-</div>
+<!-- Dekorasi latar (siluet melayang + pita seluloid) dilepas di redesign kulit
+     dingin, sejalan dengan aplikasi Keuangan. Halaman masuk sekarang polos;
+     alur tiga-status di bawah tetap ada karena itu isi, bukan hiasan. -->
 
 <main class="masuk-grid">
 
@@ -145,6 +118,6 @@
   <a href="https://github.com/rcoalxndr/jurnal">Lihat kodenya</a>
 </footer>
 
-<script type="module" src="login.js?v=5"></script>
+<script type="module" src="login.js?v=6"></script>
 </body>
 </html>

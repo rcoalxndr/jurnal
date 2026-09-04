@@ -9,8 +9,8 @@
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="Jurnal">
-<meta name="theme-color" content="#EDE7DA" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#1A1815" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#FAFAFA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#131316" media="(prefers-color-scheme: dark)">
 
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://rcoalxndr.github.io/jurnal/app.html?demo">
@@ -20,8 +20,8 @@
 <meta name="twitter:card" content="summary">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Karla:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="style.css?v=5">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Poppins:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="style.css?v=6">
 <script>
   try {
     var t = localStorage.getItem('theme');
@@ -31,69 +31,56 @@
 </head>
 <body>
 
-<!-- Latar hidup: siluet keempat jenis melayang jauh di belakang, dengan pita
-     seluloid yang bergeser pelan. Ditaruh di z-index -1 supaya berada di bawah
-     seluruh isi, dan pointer-events dimatikan supaya tidak pernah mencuri
-     ketukan.
-
-     Opasitasnya sangat rendah dengan sengaja. Ini aplikasi data -- kartunya
-     buram, jadi hiasan ini hanya terlihat di sela dan pinggiran, dan tidak
-     boleh sampai mengganggu keterbacaan angka. -->
-<div class="latar-dekor" aria-hidden="true">
-  <div class="latar-pita"><div class="latar-pita-jalur"></div></div>
-  <svg class="latar-svg" viewBox="0 0 1200 900" preserveAspectRatio="xMidYMid slice">
-    <g class="l-film">   <use href="#ik-film"   x="34"   y="86"  width="150" height="150"/></g>
-    <g class="l-buku">   <use href="#ik-buku"   x="1010" y="150" width="132" height="132"/></g>
-    <g class="l-game">   <use href="#ik-game"   x="86"   y="576" width="146" height="146"/></g>
-    <g class="l-serial"> <use href="#ik-serial" x="1024" y="618" width="120" height="120"/></g>
-    <text class="l-bintang lb1" x="252"  y="404">★</text>
-    <text class="l-bintang lb2" x="962"  y="452">★</text>
-    <text class="l-bintang lb3" x="150"  y="332">★</text>
-    <text class="l-bintang lb4" x="1108" y="386">★</text>
-  </svg>
-</div>
+<!-- Satu halaman dashboard, design system disamakan dengan aplikasi Keuangan
+     (putih/near-mono, Poppins, kartu rounded, kartu hero gelap). Tab dihapus.
+     Yang tetap khas Jurnal: jenis dibedakan lewat siluet, bukan warna. -->
 
 <header class="topbar">
   <div class="wrap topbar-isi">
-    <span class="wordmark">JURNAL</span>
+    <a class="merek" href="app.html" aria-label="Jurnal">
+      <svg class="merek-tanda" viewBox="0 0 40 16" aria-hidden="true">
+        <rect x="0" y="1" width="14" height="14" rx="3"/>
+        <circle cx="27" cy="8" r="7"/>
+        <path d="M31 1 L31 15 L40 8 Z"/>
+      </svg>
+      <span class="wordmark">Jurnal</span>
+    </a>
     <div class="topbar-aksi">
+      <label class="cari">
+        <svg class="cari-ikon" viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="2"/><line x1="13.5" y1="13.5" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <input type="search" id="cariJudul" placeholder="Cari judul" aria-label="Cari judul">
+      </label>
       <button type="button" class="ikon-tombol" id="tombolTema" aria-label="Ganti tema">
         <span id="ikonTema" aria-hidden="true">☾</span>
       </button>
       <button type="button" class="tombol kecil" id="tombolKeluar">Keluar</button>
     </div>
   </div>
-  <nav class="tabs wrap" role="tablist" aria-label="Tampilan">
-    <button class="tab" role="tab" data-view="sekarang" aria-selected="true">Sekarang</button>
-    <button class="tab" role="tab" data-view="riwayat" aria-selected="false">Riwayat</button>
-    <button class="tab" role="tab" data-view="tren" aria-selected="false">Tren</button>
-  </nav>
 </header>
-
-<div class="spanduk-demo wrap" id="spandukDemo" hidden>
-  <strong>Mode demo.</strong> Semua judul di halaman ini karangan. Tombolnya berfungsi, tapi tidak ada yang tersimpan ke mana pun.
-</div>
 
 <main class="wrap utama">
 
-  <!-- =============== TAMPILAN: SEKARANG ===============
-       Dua kolom di layar lebar: kiri untuk menambah, kanan untuk yang sedang
-       berjalan. Rak di atas membentang penuh. Sengaja tidak meniru satu kolom
-       sempit aplikasi keuangan -- yang ini punya empat jenis yang perlu
-       terlihat berdampingan. -->
-  <section class="tampilan sekarang-grid" id="viewSekarang" role="tabpanel">
+  <div class="sapaan-blok">
+    <h1 class="sapaan">Halo</h1>
+    <p class="sapaan-sub" id="sapaanBulan"></p>
+  </div>
 
-    <section class="kartu rak-kartu">
+  <div class="spanduk-demo" id="spandukDemo" hidden>
+    <strong>Mode demo.</strong> Semua judul di halaman ini karangan. Tombolnya berfungsi, tapi tidak ada yang tersimpan ke mana pun.
+  </div>
+
+  <div class="dasbor-grid">
+
+   <div class="kolom kolom-a">
+
+    <!-- Kartu rak (hero gelap): berapa yang selesai bulan ini, per jenis -->
+    <section class="kartu rak-kartu" id="kartuRak">
       <div class="hero-kepala">
         <span class="k">Selesai bulan ini</span>
         <span class="periode" id="labelPeriode"></span>
       </div>
-
       <div class="rak-utama">
         <strong class="hero" id="nilaiSelesai">—</strong>
-
-        <!-- Rak: empat jenis berdampingan. Ikon yang jenisnya kosong bulan ini
-             tampil redup, jadi bentuk raknya sendiri sudah bercerita. -->
         <ul class="rak" id="rak">
           <li class="rak-slot" data-jenis="film">
             <svg class="ikon rak-ikon" aria-hidden="true"><use href="#ik-film"/></svg>
@@ -113,9 +100,7 @@
           </li>
         </ul>
       </div>
-
       <p class="dim hero-catatan" id="heroCatatan"></p>
-
       <div class="arus">
         <div class="arus-item">
           <span class="titik sedang" aria-hidden="true"></span>
@@ -130,174 +115,189 @@
       </div>
     </section>
 
-    <div class="kolom-kiri">
-      <section class="kartu">
-        <h2>Tambah judul</h2>
-        <form id="formTambah">
-          <label>
-            <span>Judul</span>
-            <input type="text" id="judul" maxlength="160" placeholder="mis. Dune: Part Two" required autocomplete="off">
-          </label>
+    <!-- Tambah judul -->
+    <section class="kartu">
+      <div class="kartu-kepala"><h2>Tambah judul</h2></div>
+      <form id="formTambah">
+        <label>
+          <span>Judul</span>
+          <input type="text" id="judul" maxlength="160" placeholder="mis. Dune: Part Two" required autocomplete="off">
+        </label>
 
-          <div class="label-palsu">
-            <span class="k">Jenis</span>
-            <div class="jenis-pilih" role="group" aria-label="Jenis" id="jenisPilih">
-              <button type="button" class="jenis-tombol aktif" data-jenis="film" aria-pressed="true">
-                <svg class="ikon" aria-hidden="true"><use href="#ik-film"/></svg><span>Film</span>
-              </button>
-              <button type="button" class="jenis-tombol" data-jenis="serial" aria-pressed="false">
-                <svg class="ikon" aria-hidden="true"><use href="#ik-serial"/></svg><span>Serial</span>
-              </button>
-              <button type="button" class="jenis-tombol" data-jenis="buku" aria-pressed="false">
-                <svg class="ikon" aria-hidden="true"><use href="#ik-buku"/></svg><span>Buku</span>
-              </button>
-              <button type="button" class="jenis-tombol" data-jenis="game" aria-pressed="false">
-                <svg class="ikon" aria-hidden="true"><use href="#ik-game"/></svg><span>Game</span>
-              </button>
-            </div>
+        <div class="label-palsu">
+          <span class="k">Jenis</span>
+          <div class="jenis-pilih" role="group" aria-label="Jenis" id="jenisPilih">
+            <button type="button" class="jenis-tombol aktif" data-jenis="film" aria-pressed="true">
+              <svg class="ikon" aria-hidden="true"><use href="#ik-film"/></svg><span>Film</span>
+            </button>
+            <button type="button" class="jenis-tombol" data-jenis="serial" aria-pressed="false">
+              <svg class="ikon" aria-hidden="true"><use href="#ik-serial"/></svg><span>Serial</span>
+            </button>
+            <button type="button" class="jenis-tombol" data-jenis="buku" aria-pressed="false">
+              <svg class="ikon" aria-hidden="true"><use href="#ik-buku"/></svg><span>Buku</span>
+            </button>
+            <button type="button" class="jenis-tombol" data-jenis="game" aria-pressed="false">
+              <svg class="ikon" aria-hidden="true"><use href="#ik-game"/></svg><span>Game</span>
+            </button>
           </div>
+        </div>
 
-          <div class="label-palsu">
-            <span class="k">Status awal</span>
-            <div class="status-pilih" role="group" aria-label="Status awal">
-              <button type="button" class="status-tombol" data-status="mau" aria-pressed="false">Mau</button>
-              <button type="button" class="status-tombol aktif" data-status="sedang" aria-pressed="true">Sedang</button>
-              <button type="button" class="status-tombol" data-status="selesai" aria-pressed="false">Selesai</button>
-            </div>
+        <div class="label-palsu">
+          <span class="k">Status awal</span>
+          <div class="status-pilih" role="group" aria-label="Status awal">
+            <button type="button" class="status-tombol" data-status="mau" aria-pressed="false">Mau</button>
+            <button type="button" class="status-tombol aktif" data-status="sedang" aria-pressed="true">Sedang</button>
+            <button type="button" class="status-tombol" data-status="selesai" aria-pressed="false">Selesai</button>
           </div>
-
-          <p class="pesan" id="pesanTambah" role="status" hidden></p>
-          <button type="submit" class="tombol utama lebar" id="tombolSimpan">Simpan</button>
-          <p class="catatan-kecil" id="petunjukTambah"></p>
-        </form>
-      </section>
-    </div>
-
-    <div class="kolom-kanan">
-      <section class="kartu">
-        <h2>Sedang jalan</h2>
-        <p class="dim sub" id="sedangSub">Yang paling lama tidak disentuh muncul di atas.</p>
-        <div class="kosong" id="sedangKosong" hidden>
-          <svg class="ikon-kosong" aria-hidden="true"><use href="#ik-serial"/></svg>
-          <p><strong>Tidak ada yang sedang jalan.</strong></p>
-          <p class="dim">Layar kosong ini sebenarnya kabar baik — tidak ada yang mangkrak. Mulai satu dari antrean di bawah.</p>
         </div>
-        <ul class="item-list" id="daftarSedang"></ul>
-      </section>
 
-      <section class="kartu">
-        <h2>Antrean</h2>
-        <p class="dim sub" id="antreSub">Sudah diniatkan, belum dimulai.</p>
-        <div class="kosong" id="antreKosong" hidden>
-          <svg class="ikon-kosong" aria-hidden="true"><use href="#ik-buku"/></svg>
-          <p class="dim">Antreannya kosong, dan itu tidak apa-apa. Antrean yang terlalu panjang justru bikin enggan mulai.</p>
-        </div>
-        <ul class="item-list" id="daftarAntre"></ul>
-      </section>
-    </div>
+        <p class="pesan" id="pesanTambah" role="status" hidden></p>
+        <button type="submit" class="tombol utama lebar" id="tombolSimpan">Simpan</button>
+        <p class="catatan-kecil" id="petunjukTambah"></p>
+      </form>
+    </section>
 
-  </section>
+    <!-- Selesai bulan ini (daftar) -->
+    <section class="kartu">
+      <div class="kartu-kepala">
+        <h2>Selesai bulan ini</h2>
+        <button type="button" class="tautan-tombol" id="tombolDetail" aria-expanded="false">Lihat semua</button>
+      </div>
+      <div class="kosong" id="selesaiKosong" hidden>
+        <svg class="ikon-kosong" aria-hidden="true"><use href="#ik-film"/></svg>
+        <p class="dim" id="selesaiKosongTeks">Belum ada yang selesai bulan ini. Masih ada waktu.</p>
+      </div>
+      <ul class="item-list" id="daftarSelesai"></ul>
+    </section>
 
-  <!-- =============== TAMPILAN: RIWAYAT =============== -->
-  <section class="tampilan sempit" id="viewRiwayat" role="tabpanel" hidden>
+   </div>
 
-    <div class="bulan-nav">
-      <button type="button" class="ikon-tombol" id="bulanSebelum" aria-label="Bulan sebelumnya">‹</button>
-      <strong id="bulanTerpilih">—</strong>
-      <button type="button" class="ikon-tombol" id="bulanSesudah" aria-label="Bulan berikutnya">›</button>
-    </div>
+   <div class="kolom kolom-b">
 
-    <div class="unduh-baris">
-      <button type="button" class="tombol kecil" id="tombolUnduh">
-        <svg class="ikon" aria-hidden="true"><use href="#ik-buku"/></svg>
-        <span>Unduh PDF</span>
-      </button>
+    <!-- Sedang jalan -->
+    <section class="kartu">
+      <div class="kartu-kepala"><h2>Sedang jalan</h2></div>
+      <p class="dim sub" id="sedangSub">Yang paling lama tidak disentuh muncul di atas.</p>
+      <div class="kosong" id="sedangKosong" hidden>
+        <svg class="ikon-kosong" aria-hidden="true"><use href="#ik-serial"/></svg>
+        <p><strong>Tidak ada yang sedang jalan.</strong></p>
+        <p class="dim">Layar kosong ini sebenarnya kabar baik — tidak ada yang mangkrak. Mulai satu dari antrean di bawah.</p>
+      </div>
+      <ul class="item-list" id="daftarSedang"></ul>
+    </section>
+
+    <!-- Antrean -->
+    <section class="kartu">
+      <div class="kartu-kepala"><h2>Antrean</h2></div>
+      <p class="dim sub" id="antreSub">Sudah diniatkan, belum dimulai.</p>
+      <div class="kosong" id="antreKosong" hidden>
+        <svg class="ikon-kosong" aria-hidden="true"><use href="#ik-buku"/></svg>
+        <p class="dim">Antreannya kosong, dan itu tidak apa-apa. Antrean yang terlalu panjang justru bikin enggan mulai.</p>
+      </div>
+      <ul class="item-list" id="daftarAntre"></ul>
+    </section>
+
+    <!-- Selesai per bulan (grafik garis) -->
+    <section class="kartu">
+      <div class="kartu-kepala">
+        <h2>Selesai per bulan</h2>
+        <button type="button" class="tombol kecil" id="tombolUnduh">
+          <svg class="ikon" aria-hidden="true"><use href="#ik-buku"/></svg>
+          <span>PDF</span>
+        </button>
+      </div>
+      <div class="grafik grafik-garis" id="grafikTren"></div>
+      <div class="kosong" id="trenKosong" hidden>
+        <p class="dim">Grafik mulai berguna setelah kamu punya data di lebih dari satu bulan.</p>
+      </div>
+    </section>
+
+    <!-- Sorotan bulan (KPI kecil) -->
+    <section class="kartu">
+      <div class="kartu-kepala"><h2>Sorotan bulan ini</h2></div>
+      <ul class="sorotan-stat" id="sorotanBulan"></ul>
+    </section>
+
+   </div>
+
+  </div>
+
+  <!-- =============== RINCIAN LENGKAP (dibuka lewat "Lihat semua") =============== -->
+  <section class="detail-blok" id="viewDetail" hidden aria-label="Rincian lengkap">
+
+    <div class="detail-kepala">
+      <div class="bulan-nav">
+        <button type="button" class="ikon-tombol" id="bulanSebelum" aria-label="Bulan sebelumnya">‹</button>
+        <strong id="bulanTerpilih">—</strong>
+        <button type="button" class="ikon-tombol" id="bulanSesudah" aria-label="Bulan berikutnya">›</button>
+      </div>
       <span class="catatan-kecil" id="unduhKet"></span>
     </div>
 
-    <section class="kartu">
-      <div class="ringkas-tiga">
-        <div><span class="k">Selesai</span><strong id="riwSelesai" class="angka masuk">—</strong></div>
-        <div><span class="k">Ditinggalkan</span><strong id="riwDitinggal" class="angka keluar">—</strong></div>
-        <div><span class="k">Rata-rata nilai</span><strong id="riwRata" class="angka">—</strong></div>
-      </div>
-      <p class="dim catatan-kecil" id="riwBanding"></p>
-    </section>
+    <div class="detail-grid">
 
-    <section class="kartu">
-      <div class="saring-chip" role="group" aria-label="Saring jenis" id="saringJenis">
-        <button type="button" class="chip aktif" data-jenis="semua" aria-pressed="true">Semua</button>
-        <button type="button" class="chip" data-jenis="film" aria-pressed="false">
-          <svg class="ikon" aria-hidden="true"><use href="#ik-film"/></svg><span>Film</span>
-        </button>
-        <button type="button" class="chip" data-jenis="serial" aria-pressed="false">
-          <svg class="ikon" aria-hidden="true"><use href="#ik-serial"/></svg><span>Serial</span>
-        </button>
-        <button type="button" class="chip" data-jenis="buku" aria-pressed="false">
-          <svg class="ikon" aria-hidden="true"><use href="#ik-buku"/></svg><span>Buku</span>
-        </button>
-        <button type="button" class="chip" data-jenis="game" aria-pressed="false">
-          <svg class="ikon" aria-hidden="true"><use href="#ik-game"/></svg><span>Game</span>
-        </button>
-      </div>
+      <section class="kartu lebar-penuh">
+        <div class="ringkas-tiga">
+          <div><span class="k">Selesai</span><strong id="riwSelesai" class="angka masuk">—</strong></div>
+          <div><span class="k">Ditinggalkan</span><strong id="riwDitinggal" class="angka keluar">—</strong></div>
+          <div><span class="k">Rata-rata nilai</span><strong id="riwRata" class="angka">—</strong></div>
+        </div>
+        <p class="dim catatan-kecil" id="riwBanding"></p>
+      </section>
 
-      <p class="dim sub">Bintangnya bisa langsung diketuk di daftar — tidak perlu buka dialog ubah.</p>
+      <section class="kartu lebar-penuh">
+        <div class="kartu-kepala"><h2>Berakhir di <span id="detailBulan"></span></h2></div>
+        <div class="saring-chip" role="group" aria-label="Saring jenis" id="saringJenis">
+          <button type="button" class="chip aktif" data-jenis="semua" aria-pressed="true">Semua</button>
+          <button type="button" class="chip" data-jenis="film" aria-pressed="false">
+            <svg class="ikon" aria-hidden="true"><use href="#ik-film"/></svg><span>Film</span>
+          </button>
+          <button type="button" class="chip" data-jenis="serial" aria-pressed="false">
+            <svg class="ikon" aria-hidden="true"><use href="#ik-serial"/></svg><span>Serial</span>
+          </button>
+          <button type="button" class="chip" data-jenis="buku" aria-pressed="false">
+            <svg class="ikon" aria-hidden="true"><use href="#ik-buku"/></svg><span>Buku</span>
+          </button>
+          <button type="button" class="chip" data-jenis="game" aria-pressed="false">
+            <svg class="ikon" aria-hidden="true"><use href="#ik-game"/></svg><span>Game</span>
+          </button>
+        </div>
+        <p class="dim sub">Bintangnya bisa langsung diketuk di daftar — tidak perlu buka dialog ubah.</p>
+        <div class="kosong" id="riwKosong" hidden>
+          <svg class="ikon-kosong" aria-hidden="true"><use href="#ik-film"/></svg>
+          <p class="dim" id="riwKosongTeks">Belum ada yang selesai atau ditinggalkan di bulan ini.</p>
+        </div>
+        <ul class="item-list riwayat-list" id="daftarRiwayat"></ul>
+      </section>
 
-      <div class="kosong" id="riwKosong" hidden>
-        <svg class="ikon-kosong" aria-hidden="true"><use href="#ik-film"/></svg>
-        <p class="dim" id="riwKosongTeks">Belum ada yang selesai atau ditinggalkan di bulan ini.</p>
-      </div>
-      <ul class="item-list riwayat-list" id="daftarRiwayat"></ul>
-    </section>
+      <section class="kartu">
+        <div class="kartu-kepala"><h2>Sebaran jenis</h2></div>
+        <p class="dim sub" id="jenisSub">Berapa judul yang selesai per jenis, sepanjang waktu.</p>
+        <div class="grafik" id="grafikJenis"></div>
+        <div class="kosong" id="jenisKosong" hidden><p class="dim">Belum ada judul yang selesai.</p></div>
+      </section>
 
-  </section>
+      <section class="kartu">
+        <div class="kartu-kepala"><h2>Sebaran nilai</h2></div>
+        <p class="dim sub" id="nilaiSub">Berapa judul di tiap bintang.</p>
+        <div class="grafik" id="grafikNilai"></div>
+        <div class="kosong" id="nilaiKosong" hidden><p class="dim">Belum ada judul yang kamu beri nilai.</p></div>
+      </section>
 
-  <!-- =============== TAMPILAN: TREN =============== -->
-  <section class="tampilan sempit" id="viewTren" role="tabpanel" hidden>
+      <section class="kartu lebar-penuh">
+        <div class="kartu-kepala"><h2>Riwayat bulanan</h2></div>
+        <div class="tabel-bungkus">
+          <table class="tabel" id="tabelBulanan">
+            <thead>
+              <tr><th scope="col">Bulan</th><th scope="col">Selesai</th><th scope="col">Ditinggal</th><th scope="col">Rata nilai</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="kosong" id="riwayatKosong" hidden><p class="dim">Riwayat terisi sendiri seiring kamu mencatat.</p></div>
+      </section>
 
-    <section class="kartu">
-      <h2>Selesai per bulan</h2>
-      <p class="dim sub">Enam bulan terakhir yang ada datanya. Hanya bulan tertinggi yang diberi angka, supaya grafiknya tetap terbaca.</p>
-      <div class="grafik" id="grafikTren"></div>
-      <div class="kosong" id="trenKosong" hidden>
-        <p class="dim">Grafik tren mulai berguna setelah kamu punya data di lebih dari satu bulan. Sabar — ini yang paling menarik nanti.</p>
-      </div>
-    </section>
-
-    <section class="kartu">
-      <h2>Sebaran jenis</h2>
-      <p class="dim sub" id="jenisSub">Berapa judul yang selesai per jenis, sepanjang waktu.</p>
-      <div class="grafik" id="grafikJenis"></div>
-      <div class="kosong" id="jenisKosong" hidden>
-        <p class="dim">Belum ada judul yang selesai.</p>
-      </div>
-    </section>
-
-    <section class="kartu">
-      <h2>Sebaran nilai</h2>
-      <p class="dim sub" id="nilaiSub">Berapa judul di tiap bintang.</p>
-      <div class="grafik" id="grafikNilai"></div>
-      <div class="kosong" id="nilaiKosong" hidden>
-        <p class="dim">Belum ada judul yang kamu beri nilai.</p>
-      </div>
-    </section>
-
-    <section class="kartu">
-      <h2>Riwayat bulanan</h2>
-      <p class="dim sub">Tabel yang sama, tanpa bergantung warna maupun bentuk.</p>
-      <div class="tabel-bungkus">
-        <table class="tabel" id="tabelBulanan">
-          <thead>
-            <tr><th scope="col">Bulan</th><th scope="col">Selesai</th><th scope="col">Ditinggal</th><th scope="col">Rata nilai</th></tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-      <div class="kosong" id="riwayatKosong" hidden>
-        <p class="dim">Riwayat terisi sendiri seiring kamu mencatat.</p>
-      </div>
-    </section>
-
+    </div>
   </section>
 
 </main>
@@ -402,6 +402,6 @@
   <a href="https://github.com/rcoalxndr/jurnal">Kode sumber</a>
 </footer>
 
-<script type="module" src="app.js?v=5"></script>
+<script type="module" src="app.js?v=6"></script>
 </body>
 </html>
